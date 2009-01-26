@@ -15,7 +15,7 @@ interface Auth_OAuth_Signer
 	 * @exception OAuthException when there is no oauth relation with the server
 	 * @exception OAuthException when we don't support the signing methods of the server
 	 */	
-	public static function sign ( Auth_OAuth_Request $request,  $user = 0 );
+	public static function sign ( Auth_OAuth_Request $request,  $user );
 
 
 	/**
@@ -42,7 +42,7 @@ interface Auth_OAuth_Signer
 	 * @exception OAuthException thrown when the request did not verify
 	 * @return int user_id associated with token (false when no user associated)
 	 */
-	public static function verify ( Auth_OAuth_Request $request, $token_type = 'access' );
+	public static function verify ( Auth_OAuth_Request $request, $token_type );
 
 }
 

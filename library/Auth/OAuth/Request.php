@@ -38,7 +38,7 @@ interface Auth_OAuth_Request
 	 * @param boolean	urldecode	set to true to decode the value upon return
 	 * @return string value		false when not found
 	 */
-	public function getParam ( $name, $urldecode = false );
+	public function getParam ( $name, $urldecode );
 
 
 	/**
@@ -48,7 +48,7 @@ interface Auth_OAuth_Request
 	 * @param string	parameter value
 	 * @param boolean	encoded	set to true when the values are already encoded
 	 */
-	public function setParam ( $name, $value, $encoded = false );
+	public function setParam ( $name, $value, $encoded );
 
 
 	/**
