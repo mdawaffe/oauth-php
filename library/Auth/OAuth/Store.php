@@ -56,10 +56,32 @@ interface Auth_OAuth_Store
 	 * Create a new token for the specified consumer.
 	 *
 	 * @param string $consumer_key key of OAuth consumer to create token for
-	 * @param string $type type of token to create (request, access)
 	 * @return Auth_OAuth_Token
 	 */
-	public function createConsumerToken ( $consumer_key, $token_type );
+	public function createConsumerRequestToken ( $consumer_key );
+
+
+	/**
+	 * Authorize a consumer request token.
+	 *
+	 * @param string $token_key key of request token to authorize
+	 * @param int $user ID of user to authorize token for
+	 * @return Auth_OAuth_Token
+	 */
+	public function authorizeConsumerRequestToken ( $token_key, $user );
+
+
+	/**
+	 * Create a consumer access token based on the provided request token.  The 
+	 * OAuth store does not need to worry with checking that the request token 
+	 * has been authorized, that should have already been done by the caller of 
+	 * this method.  Nor does the store need to worry with deleting the request 
+	 * token.
+	 *
+	 * @param Auth_OAuth_Token $request_token request token being exchanged
+	 * @return Auth_OAuth_Token access token
+	 */
+	public function createConsumerAccessToken ( Auth_OAuth_Token $request_token );
 
 
 	/**
