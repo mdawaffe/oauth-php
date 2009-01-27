@@ -43,6 +43,13 @@ interface Auth_OAuth_Token
 	 */
 	public function getUser();
 
+	/**
+	 * Has the token been authorized by the user.  This only makes sense for 
+	 * request tokens.
+	 *
+	 * @return boolean if the token has been authorized
+	 */
+	public function isAuthorized();
 }
 
 ?>

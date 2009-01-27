@@ -66,6 +66,22 @@ interface Auth_OAuth_Request
 	 */
 	public function setBody ( $body );
 
+	public function getVersion();
+
+	public function getConsumerKey ();
+
+	public function getSignatureMethod();
+
+	public function getSignature();
+
+	public function getTimestamp();
+
+	public function getNonce();
+
+	public function getToken();
+
+	public function getCallback();
+
 }
 
 

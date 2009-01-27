@@ -62,6 +62,27 @@ class Auth_OAuth_Util
 	 */
 	public static function defaultPortForScheme ( $scheme ) { }
 
+	public static function sendResponse( $parameters ) 
+	{
+		$response = '';
+
+		foreach ($parameters as $name => $value) 
+		{
+			if (!empty($response)) {
+				$response .= '&';
+			}
+
+			$response .= $name . '=' . self::urlencode($value);
+		}
+
+		header('HTTP/1.1 200 OK');
+		header('Content-Length: ' . strlen($result));
+		header('Content-Type: application/x-www-form-urlencoded');
+
+		echo $result;
+		exit;
+	}
+
 }
 
 ?>
