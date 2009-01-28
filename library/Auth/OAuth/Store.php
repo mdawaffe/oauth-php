@@ -93,15 +93,6 @@ interface Auth_OAuth_Store
 
 
 	/**
-	 * Authorize a consumer token.
-	 *
-	 * @param string $token_key token to be authorized
-	 * @param int $user ID of user token is authorized for
-	 */
-	public function authorizeConsumerToken ( $token_key, $user );
-
-
-	/**
 	 * Get an OAuth Server.
 	 *
 	 * @param string $consumer_key consumer key of server to get
