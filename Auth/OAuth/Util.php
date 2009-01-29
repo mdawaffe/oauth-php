@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * OAuth Utility functions.
+ */
 class Auth_OAuth_Util
 {
 
@@ -9,7 +12,14 @@ class Auth_OAuth_Util
 	 * @param string s
 	 * @return string
 	 */
-	public static function urlencode ( $s ) { }
+	public static function urlencode ( &$s )
+	{ 
+		if ($s !== false) {
+			$s = str_replace('%7E', '~', rawurlencode($s));
+		}
+
+		return $s;
+	}
 	
 
 	/**
@@ -19,7 +29,14 @@ class Auth_OAuth_Util
 	 * @param string s
 	 * @return string
 	 */
-	public static function urldecode ( $s ) { }
+	public static function urldecode ( &$s ) 
+	{ 
+		if ($s !== false) {
+			$s = rawurldecode($s);
+		}
+
+		return $s;
+	}
 
 
 	/**
@@ -30,7 +47,14 @@ class Auth_OAuth_Util
 	 * @param string s
 	 * @return string
 	 */
-	public static function urltranscode ( $s ) { }
+	public static function urltranscode ( &$s ) 
+	{ 
+		if ($s !== false) {
+			$s = self::urlencode(urldecode($s));
+		}
+
+		return $s;
+	}
 
 
 	/**
@@ -60,7 +84,16 @@ class Auth_OAuth_Util
 	 * @param string scheme
 	 * @return int
 	 */
-	public static function defaultPortForScheme ( $scheme ) { }
+	public static function defaultPortForScheme ( $scheme ) 
+	{ 
+		switch (strtolower($scheme))
+		{
+			case 'http':    return 80;
+			case 'https':   return 443;
+			default:        return null;
+		}
+	}
+
 
 	public static function sendResponse( $parameters ) 
 	{
@@ -68,11 +101,7 @@ class Auth_OAuth_Util
 
 		foreach ($parameters as $name => $value) 
 		{
-			if (!empty($response)) {
-				$response .= '&';
-			}
-
-			$response .= $name . '=' . self::urlencode($value);
+			$parameters[$name] = $name . '=' . self::urlencode($value);
 		}
 
 		header('HTTP/1.1 200 OK');

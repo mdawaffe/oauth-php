@@ -22,13 +22,15 @@ interface Auth_OAuth_Request
 	public function getRequestUrl ();
 
 
+	public function getParameters ();
+
 	/**
 	 * Return the complete parameter string for the signature check.
 	 * All parameters are correctly urlencoded and sorted on name and value
 	 * 
 	 * @return array associative array of parameters
 	 */
-	public function getParams ();
+	public function getNormalizedParameterString ();
 
 
 	/**
