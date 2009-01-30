@@ -25,7 +25,8 @@ class EncodingTest extends PHPUnit_Framework_TestCase {
 		);
 
 		foreach ($parameters as $param => $encoded) {
-			$this->assertEquals($encoded, Auth_OAuth_Util::urlencode($param));
+			$this->assertEquals($encoded, Auth_OAuth_Util::encode($param));
+			$this->assertEquals($param, Auth_OAuth_Util::decode($encoded));
 		}
 	}
 }

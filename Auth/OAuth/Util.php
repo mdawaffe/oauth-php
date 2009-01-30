@@ -12,7 +12,7 @@ class Auth_OAuth_Util
 	 * @param string s
 	 * @return string
 	 */
-	public static function urlencode ( &$s )
+	public static function encode ( $s )
 	{ 
 		if ($s !== false) {
 			$s = str_replace('%7E', '~', rawurlencode($s));
@@ -29,7 +29,7 @@ class Auth_OAuth_Util
 	 * @param string s
 	 * @return string
 	 */
-	public static function urldecode ( &$s ) 
+	public static function decode ( $s ) 
 	{ 
 		if ($s !== false) {
 			$s = rawurldecode($s);
@@ -50,7 +50,7 @@ class Auth_OAuth_Util
 	public static function urltranscode ( &$s ) 
 	{ 
 		if ($s !== false) {
-			$s = self::urlencode(urldecode($s));
+			$s = self::encode(urldecode($s));
 		}
 
 		return $s;
@@ -101,7 +101,7 @@ class Auth_OAuth_Util
 
 		foreach ($parameters as $name => $value) 
 		{
-			$parameters[$name] = $name . '=' . self::urlencode($value);
+			$parameters[$name] = $name . '=' . self::encode($value);
 		}
 
 		header('HTTP/1.1 200 OK');

@@ -106,16 +106,16 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 		foreach ($parameters as $key => $value) {
 			if ($key == 'oauth_signature') continue;
 
-			Auth_OAuth_Util::urlencode($key);
+			$key = Auth_OAuth_Util::encode($key);
 
 			if (is_array($value)) {
 				sort($value, SORT_STRING);
 				foreach ($value as $v) {
-					Auth_OAuth_Util::urlencode($v);
+					$v = Auth_OAuth_Util::encode($v);
 					$normalized[] = $key . '=' . $v;
 				}
 			} else {
-				Auth_OAuth_Util::urlencode($value);
+				$value = Auth_OAuth_Util::encode($value);
 				$normalized[] = $key . '=' . $value;
 			}
 		}

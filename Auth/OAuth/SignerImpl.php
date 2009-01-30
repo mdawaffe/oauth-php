@@ -13,9 +13,9 @@ class Auth_OAuth_SignerImpl implements Auth_OAuth_Signer
 
 	public static function getSignatureBaseString ( Auth_OAuth_Request $request )
 	{
-		$base_string = Auth_OAuth_Util::urlencode($request->getMethod()) 
-			. '&' . Auth_OAuth_Util::urlencode($request->getRequestUrl()) 
-			. '&' . Auth_OAuth_Util::urlencode($request->getNormalizedParameterString());
+		$base_string = Auth_OAuth_Util::encode($request->getMethod()) 
+			. '&' . Auth_OAuth_Util::encode($request->getRequestUrl()) 
+			. '&' . Auth_OAuth_Util::encode($request->getNormalizedParameterString());
 
 		return $base_string;
 	}
