@@ -1,5 +1,11 @@
 <?php
 
+require_once 'Auth/OAuth/Server.php';
+require_once 'Auth/OAuth/Request.php';
+require_once 'Auth/OAuth/Signer.php';
+require_once 'Auth/OAuth/Util.php';
+require_once 'Auth/OAuth/Store.php';
+
 class Auth_OAuth_ServerImpl implements Auth_OAuth_Server
 {
 	private $key;

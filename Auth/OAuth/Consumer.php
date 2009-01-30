@@ -1,5 +1,7 @@
 <?php
 
+require_once 'Auth/OAuth/Token.php';
+
 interface Auth_OAuth_Consumer
 {
 

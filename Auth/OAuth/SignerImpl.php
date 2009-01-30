@@ -1,8 +1,8 @@
 <?php
 
-require_once dirname(__FILE__) . '/Signer.php';
-require_once dirname(__FILE__) . '/Request.php';
-require_once dirname(__FILE__) . '/Util.php';
+require_once 'Auth/OAuth/Signer.php';
+require_once 'Auth/OAuth/Request.php';
+require_once 'Auth/OAuth/Util.php';
 
 /**
  * An OAuth Signer is responsible for signing and verifying signatures of OAuth Requests.

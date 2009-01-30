@@ -1,5 +1,7 @@
 <?php
 
+require_once 'Auth/OAuth/Request.php';
+
 interface Auth_OAuth_Server
 {
 
