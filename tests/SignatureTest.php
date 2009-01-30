@@ -6,18 +6,6 @@ require_once 'Auth/OAuth/SignerImpl.php';
 require_once 'Auth/OAuth/SignatureMethod_PLAINTEXT.php';
 require_once 'Auth/OAuth/SignatureMethod_HMAC_SHA1.php';
 
-/**
- * Tests of Auth_OAuth_Request
- *
- * The tests works by using OAuthTestUtils::build_request
- * to populare $_SERVER, $_GET & $_POST.
- *
- * Most of the base string and signature tests
- * are either very simple or based upon
- * http://wiki.oauth.net/TestCases
- *
- * @see http://wiki.oauth.net/TestCases
- */
 class SignatureTest extends PHPUnit_Framework_TestCase {	
 
 	public function testGetBaseString() {
