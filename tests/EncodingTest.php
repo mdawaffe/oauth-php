@@ -1,6 +1,7 @@
 <?php
 
-require_once dirname(__FILE__) . '/../Auth/OAuth/Util.php';
+require_once dirname(__FILE__) . '/common.php';
+require_once 'Auth/OAuth/Util.php';
 
 /**
  * Test parameter encoding

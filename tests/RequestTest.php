@@ -1,7 +1,8 @@
 <?php
 
-
 require_once dirname(__FILE__) . '/common.php';
+require_once 'Auth/OAuth/Util.php';
+require_once 'Auth/OAuth/RequestImpl.php';
 
 /**
  * Tests of Auth_OAuth_Request
