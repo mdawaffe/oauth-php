@@ -2,7 +2,7 @@
 
 require_once 'Auth/OAuth/Store/Server.php';
 
-class Auth_OAuth_ServerImpl implements Auth_OAuth_Server
+class Auth_OAuth_Store_ServerImpl implements Auth_OAuth_Store_Server
 {
 	private $key;
 

@@ -1,6 +1,9 @@
 <?php
 
 
+require_once 'Auth/OAuth/Store/Consumer.php';
+require_once 'Auth/OAuth/Store/Server.php';
+
 /**
  * An OAuth store is responsible for handling the persistent storage and retrieval 
  * of OAuth Consumer and Server definitions as well as OAuth tokens.
@@ -12,7 +15,7 @@ interface Auth_OAuth_Store
 	 * Get an OAuth Consumer.
 	 *
 	 * @param string $consumer_key consumer key to get
-	 * @return Auth_OAuth_Consumer
+	 * @return Auth_OAuth_Store_Consumer
 	 */
 	public function getConsumer ( $consumer_key );
 
@@ -21,9 +24,9 @@ interface Auth_OAuth_Store
 	 * Update an OAuth Consumer.  If a consumer does not already exist with the 
 	 * consumer_key, a new one will be added.
 	 *
-	 * @param Auth_OAuth_Consumer $consumer consumer to update
+	 * @param Auth_OAuth_Store_Consumer $consumer consumer to update
 	 */
-	public function updateConsumer ( Auth_OAuth_Consumer $consumer );
+	public function updateConsumer ( Auth_OAuth_Store_Consumer $consumer );
 
 
 	/**
@@ -96,7 +99,7 @@ interface Auth_OAuth_Store
 	 * Get an OAuth Server.
 	 *
 	 * @param string $consumer_key consumer key of server to get
-	 * @return Auth_OAuth_Server
+	 * @return Auth_OAuth_Store_Server
 	 */
 	public function getServer ( $consumer_key );
 
@@ -105,9 +108,9 @@ interface Auth_OAuth_Store
 	 * Update an OAuth Server.  If a server does not already exist with the 
 	 * consumer_key, a new one will be added.
 	 *
-	 * @param Auth_OAuth_Server $server server to update
+	 * @param Auth_OAuth_Store_Server $server server to update
 	 */
-	public function updateServer ( Auth_OAuth_Server $server );
+	public function updateServer ( Auth_OAuth_Store_Server $server );
 
 
 	/**
