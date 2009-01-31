@@ -14,7 +14,7 @@ class Auth_OAuth_Store_ServerImpl implements Auth_OAuth_Store_Server
 
 	private $access_token_uri;
 
-	public function __construct ( $key, $secret );
+	public function __construct ( $key, $secret )
 	{
 
 	}
