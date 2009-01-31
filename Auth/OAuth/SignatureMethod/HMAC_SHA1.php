@@ -25,7 +25,7 @@ class Auth_OAuth_SignatureMethod_HMAC_SHA1 implements Auth_OAuth_SignatureMethod
 	public function signature ( Auth_OAuth_Request $request, $base_string, $consumer_secret, $token_secret )
 	{
 		$hmac = self::buildHMAC($base_string, $consumer_secret, $token_secret);
-		return Auth_OAuth_Util::encode(base64_encode($hmac));
+		return base64_encode($hmac);
 	}
 
 	private function buildHMAC ( $base_string, $consumer_secret, $token_secret )
