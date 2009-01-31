@@ -3,6 +3,9 @@
 require_once 'Auth/OAuth/Store.php';
 require_once 'Auth/OAuth/Token.php';
 
+/**
+ * Convenience methods used for communicating with an OAuth Server.
+ */
 class Auth_OAuth_Consumer
 {
 

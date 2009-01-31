@@ -10,7 +10,7 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 {
 
 	private $method;
-	
+
 	private $headers;
 
 	private $uri;
@@ -66,7 +66,7 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 
 	/**
 	 * Return the request method
-	 * 
+	 *
 	 * @return string
 	 */
 	public function getMethod ()
@@ -86,6 +86,11 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 	}
 
 
+	/**
+	 * Get all request parameters
+	 *
+	 * @return array associative array of parameters
+	 */
 	public function getParameters ()
 	{
 		return $this->parameters;
@@ -94,7 +99,7 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 	/**
 	 * Return the complete parameter string for the signature check.
 	 * All parameters are correctly urlencoded and sorted on name and value
-	 * 
+	 *
 	 * @return array associative array of parameters
 	 */
 	public function getNormalizedParameterString ()
@@ -125,7 +130,7 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 
 	/**
 	 * Get a parameter, value is always urlencoded.
-	 * 
+	 *
 	 * @param string	parameter name
 	 * @param boolean	urldecode	set to true to decode the value upon return
 	 * @return string value		false when not found
@@ -147,7 +152,7 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 
 	/**
 	 * Set a parameter.
-	 * 
+	 *
 	 * @param string	parameter name
 	 * @param string	parameter value
 	 * @param boolean	encoded	set to true when the values are already encoded
@@ -164,7 +169,7 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 
 	/**
 	 * Return the body of the OAuth request.
-	 * 
+	 *
 	 * @return string	null when no body
 	 */
 	public function getBody ()
@@ -175,48 +180,96 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 
 	/**
 	 * Set the body of the OAuth request.
-	 * 
+	 *
 	 * @param string	null when no body
 	 */
 	public function setBody ( $body )
 	{
 	}
 
+
+	/**
+	 * Get the OAuth version of the request.
+	 *
+	 * @param string OAuth version
+	 */
 	public function getVersion()
 	{
 		return $this->getParam('oauth_version', true);
 	}
 
+
+	/**
+	 * Get the OAuth consumer key of the request.
+	 *
+	 * @param string OAuth consumer key
+	 */
 	public function getConsumerKey ()
 	{
 		return $this->getParam('oauth_consumer_key', true);
 	}
 
+
+	/**
+	 * Get the OAuth signature method of the request.
+	 *
+	 * @param string OAuth signature method
+	 */
 	public function getSignatureMethod()
 	{
 		return $this->getParam('oauth_signature_method', true);
 	}
 
+
+	/**
+	 * Get the OAuth signature of the request.
+	 *
+	 * @param string OAuth signature
+	 */
 	public function getSignature()
 	{
 		return $this->getParam('oauth_signature', true);
 	}
 
+
+	/**
+	 * Get the OAuth timestamp of the request.
+	 *
+	 * @param string OAuth timestamp
+	 */
 	public function getTimestamp()
 	{
 		return $this->getParam('oauth_timestamp', true);
 	}
 
+
+	/**
+	 * Get the OAuth nonce of the request.
+	 *
+	 * @param string OAuth nonce
+	 */
 	public function getNonce()
 	{
 		return $this->getParam('oauth_nonce', true);
 	}
 
+
+	/**
+	 * Get the OAuth token of the request.
+	 *
+	 * @param string OAuth token
+	 */
 	public function getToken()
 	{
 		return $this->getParam('oauth_token', true);
 	}
 
+
+	/**
+	 * Get the OAuth callback URL of the request.
+	 *
+	 * @param string OAuth callback URL
+	 */
 	public function getCallback()
 	{
 		return $this->getParam('oauth_callback', true);
@@ -230,12 +283,12 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 	 */
 	private static function getRequestHeaders() {
 		if (function_exists('apache_request_headers')) {
-			// We need this to get the actual Authorization: 
-			// header because apache tends to tell us it doesn't exist.  
+			// We need this to get the actual Authorization:
+			// header because apache tends to tell us it doesn't exist. 
 			return apache_request_headers();
 		}
-		
-		// If we're not using apache, we just have to hope that _SERVER actually 
+	
+		// If we're not using apache, we just have to hope that _SERVER actually
 		// contains what we need.
 		$headers = array();
 
@@ -253,7 +306,7 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 
 
 	/**
-	 * Get OAuth parameters for this request. Parameters are retrieved, in 
+	 * Get OAuth parameters for this request. Parameters are retrieved, in
 	 * order of preference, from:
 	 *
 	 *   - Authorization header
@@ -268,19 +321,19 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 			$parameters = array_merge($parameters, $_GET);
 		}
 
-		if ($this->getMethod() == 'POST'  &&  $this->getRequestContentType() == 'application/x-www-form-urlencoded') 
+		if ($this->getMethod() == 'POST'  &&  $this->getRequestContentType() == 'application/x-www-form-urlencoded')
 		{
 			$parameters = array_merge($parameters, $_POST);
 		}
 
-		if (array_key_exists('Authorization', $this->headers)) 
+		if (array_key_exists('Authorization', $this->headers))
 		{
 			$auth_header = trim($this->headers['Authorization']);
 
 			if (strncasecmp($auth_header, 'OAuth ', 6) === 0)
 			{
 				$auth_parameters = self::splitHeader(substr($auth_header, 6));
-				if (array_key_exists('realm', $auth_parameters)) { 
+				if (array_key_exists('realm', $auth_parameters)) {
 					unset($auth_parameters['realm']);
 				}
 
@@ -296,12 +349,12 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 		$parameters = array();
 
 		$vs = explode(',', $header);
-		foreach ($vs as $v) 
+		foreach ($vs as $v)
 		{
 			if (strpos($v, '=') !== false)
 			{
 				$v = trim($v);
-				list($name, $value) = explode('=', $v, 2); 
+				list($name, $value) = explode('=', $v, 2);
 				if (!empty($value) && $value{0} == '"' && substr($value, -1) == '"')
 				{
 					$value = substr($value, 1, -1);
@@ -317,7 +370,7 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 
     /**
      * Fetch the content type of the current request
-     * 
+     *
      * @return string
      */
     private function getRequestContentType ()
@@ -333,9 +386,9 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 
     /**
      * Get the body of a POST or PUT.
-     * 
+     *
      * Used for fetching the post parameters and to calculate the body signature.
-     * 
+     *
      * @return string       null when no body present (or wrong content type for body)
      */
     private function getRequestBody ()

@@ -6,6 +6,9 @@ require_once 'Auth/OAuth/Signer.php';
 require_once 'Auth/OAuth/Util.php';
 require_once 'Auth/OAuth/Store.php';
 
+/**
+ * Convenience methods used for handling requests from an OAuth Consumer.
+ */
 class Auth_OAuth_Server
 {
 

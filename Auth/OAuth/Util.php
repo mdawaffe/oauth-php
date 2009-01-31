@@ -9,8 +9,8 @@ class Auth_OAuth_Util
 	/**
 	 * Encode a string according to the RFC3986
 	 * 
-	 * @param string s
-	 * @return string
+	 * @param string $s string to encode
+	 * @return string encoded string
 	 */
 	public static function encode ( $s )
 	{ 
@@ -26,8 +26,8 @@ class Auth_OAuth_Util
 	 * Decode a string according to RFC3986.
 	 * Also correctly decodes RFC1738 urls.
 	 * 
-	 * @param string s
-	 * @return string
+	 * @param string $s string to decode
+	 * @return string decoded string
 	 */
 	public static function decode ( $s ) 
 	{ 
@@ -44,7 +44,7 @@ class Auth_OAuth_Util
 	 * We use a basic urldecode() function so that any use of '+' as the
 	 * encoding of the space character is correctly handled.
 	 * 
-	 * @param string s
+	 * @param string $s string to transcode
 	 * @return string
 	 */
 	public static function urltranscode ( &$s ) 
@@ -79,9 +79,9 @@ class Auth_OAuth_Util
 
 
 	/**
-	 * Return the default port for a scheme
+	 * Return the default port for a URI scheme.
 	 * 
-	 * @param string scheme
+	 * @param string $scheme URI scheme
 	 * @return int
 	 */
 	public static function defaultPortForScheme ( $scheme ) 
