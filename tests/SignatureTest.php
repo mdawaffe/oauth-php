@@ -3,8 +3,8 @@
 require_once dirname(__FILE__) . '/common.php';
 require_once 'Auth/OAuth/RequestImpl.php';
 require_once 'Auth/OAuth/SignerImpl.php';
-require_once 'Auth/OAuth/SignatureMethod_PLAINTEXT.php';
-require_once 'Auth/OAuth/SignatureMethod_HMAC_SHA1.php';
+require_once 'Auth/OAuth/SignatureMethod/PLAINTEXT.php';
+require_once 'Auth/OAuth/SignatureMethod/HMAC_SHA1.php';
 
 class SignatureTest extends PHPUnit_Framework_TestCase {	
 
