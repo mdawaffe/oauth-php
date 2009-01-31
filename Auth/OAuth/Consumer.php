@@ -1,14 +1,15 @@
 <?php
 
+require_once 'Auth/OAuth/Store.php';
 require_once 'Auth/OAuth/Token.php';
 
-interface Auth_OAuth_Consumer
+class Auth_OAuth_Consumer
 {
 
 	/**
 	 * Get a new request token.
 	 */
-	public static function requestToken ( $consumer_key, $user );
+	public static function requestToken ( $consumer_key, $user ) { }
 
 
 	/**
@@ -16,7 +17,7 @@ interface Auth_OAuth_Consumer
 	 *
 	 * @param Auth_OAuth_Token request token to be exchanged for access token
 	 */
-	public static function accessToken ( Auth_OAuth_Token $request_token );
+	public static function accessToken ( Auth_OAuth_Token $request_token ) { }
 
 }
 

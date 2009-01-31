@@ -2,7 +2,7 @@
 
 require_once dirname(__FILE__) . '/common.php';
 require_once 'Auth/OAuth/RequestImpl.php';
-require_once 'Auth/OAuth/SignerImpl.php';
+require_once 'Auth/OAuth/Signer.php';
 require_once 'Auth/OAuth/SignatureMethod/PLAINTEXT.php';
 require_once 'Auth/OAuth/SignatureMethod/HMAC_SHA1.php';
 
@@ -11,11 +11,11 @@ class SignatureTest extends PHPUnit_Framework_TestCase {
 	public function testGetBaseString() {
 		OAuthTestUtils::build_request('POST', 'http://testbed/test', array('n'=>'v'));
 		$request = new Auth_OAuth_RequestImpl();
-		$this->assertEquals('POST&http%3A%2F%2Ftestbed%2Ftest&n%3Dv', Auth_OAuth_SignerImpl::getSignatureBaseString($request));
+		$this->assertEquals('POST&http%3A%2F%2Ftestbed%2Ftest&n%3Dv', Auth_OAuth_Signer::getSignatureBaseString($request));
 		
 		OAuthTestUtils::build_request('GET', 'http://example.com', array('n'=>'v'));
 		$request = new Auth_OAuth_RequestImpl();
-		$this->assertEquals('GET&http%3A%2F%2Fexample.com&n%3Dv', Auth_OAuth_SignerImpl::getSignatureBaseString($request));
+		$this->assertEquals('GET&http%3A%2F%2Fexample.com&n%3Dv', Auth_OAuth_Signer::getSignatureBaseString($request));
 		
 		
 		$params = array('oauth_version'=>'1.0', 'oauth_consumer_key'=>'dpf43f3p2l4k3l03', 
@@ -27,7 +27,7 @@ class SignatureTest extends PHPUnit_Framework_TestCase {
 							.'consumer_key%3Ddpf43f3p2l4k3l03%26oauth_nonce%3Dhsu94j3884j'
 							.'dopsl%26oauth_signature_method%3DPLAINTEXT%26oauth_timestam'
 							.'p%3D1191242090%26oauth_version%3D1.0', 
-							Auth_OAuth_SignerImpl::getSignatureBaseString($request));
+							Auth_OAuth_Signer::getSignatureBaseString($request));
 							
 		$params = array('file'=>'vacation.jpg', 'size'=>'original', 'oauth_version'=>'1.0', 
 					'oauth_consumer_key'=>'dpf43f3p2l4k3l03', 'oauth_token'=>'nnch734d00sl2jdk',
@@ -40,7 +40,7 @@ class SignatureTest extends PHPUnit_Framework_TestCase {
 							.'3Dkllo9940pd9333jh%26oauth_signature_method%3DHMAC-SHA1%26o'
 							.'auth_timestamp%3D1191242096%26oauth_token%3Dnnch734d00sl2jd'
 							.'k%26oauth_version%3D1.0%26size%3Doriginal', 
-							Auth_OAuth_SignerImpl::getSignatureBaseString($request));
+							Auth_OAuth_Signer::getSignatureBaseString($request));
 							
 	}
 	/*
@@ -96,7 +96,7 @@ class SignatureTest extends PHPUnit_Framework_TestCase {
 		OAuthTestUtils::build_request('GET', 'http://photos.example.net/photos', $params);			
 
 		$request = new Auth_OAuth_RequestImpl();
-		$base_string = Auth_OAuth_SignerImpl::getSignatureBaseString($request);
+		$base_string = Auth_OAuth_Signer::getSignatureBaseString($request);
 		
 		// test 1
 		$consumer_secret = 'kd94hf93k423kf44';

@@ -1,10 +1,24 @@
 <?php
 
+require_once 'Auth/OAuth/Signer.php';
+require_once 'Auth/OAuth/Request.php';
+require_once 'Auth/OAuth/Util.php';
+
 /**
  * An OAuth Signer is responsible for signing and verifying signatures of OAuth Requests.
  */
-interface Auth_OAuth_Signer
+class Auth_OAuth_Signer
 {
+
+
+	public static function getSignatureBaseString ( Auth_OAuth_Request $request )
+	{
+		$base_string = Auth_OAuth_Util::encode($request->getMethod()) 
+			. '&' . Auth_OAuth_Util::encode($request->getRequestUrl()) 
+			. '&' . Auth_OAuth_Util::encode($request->getNormalizedParameterString());
+
+		return $base_string;
+	}
 
 	/**
 	 * Sign our message in the way the server understands.
@@ -15,8 +29,13 @@ interface Auth_OAuth_Signer
 	 * @exception OAuthException when there is no oauth relation with the server
 	 * @exception OAuthException when we don't support the signing methods of the server
 	 */	
-	public static function sign ( Auth_OAuth_Request $request,  $user );
+	public static function sign ( Auth_OAuth_Request $request,  $user )
+	{
+	}
 
+	public static function getSignature ( Auth_OAuth_Request $request, $user )
+	{
+	}
 
 	/**
 	 * Build the Authorization header for an OAuth request.
@@ -24,7 +43,9 @@ interface Auth_OAuth_Signer
 	 * @param Auth_OAuth_Request $request OAuth request
 	 * @return string
 	 */
-	public static function getAuthorizationHeader ( Auth_OAuth_Request $request );
+	public static function getAuthorizationHeader ( Auth_OAuth_Request $request )
+	{
+	}
 
 
 	/**
@@ -32,7 +53,9 @@ interface Auth_OAuth_Signer
 	 * 
 	 * @return boolean
 	 */
-	public static function requestIsSigned ();
+	public static function requestIsSigned ()
+	{
+	}
 
 	
 	/**
@@ -42,7 +65,9 @@ interface Auth_OAuth_Signer
 	 * @exception OAuthException thrown when the request did not verify
 	 * @return int user_id associated with token (false when no user associated)
 	 */
-	public static function verify ( Auth_OAuth_Request $request, $token_type );
+	public static function verify ( Auth_OAuth_Request $request, $token_type )
+	{
+	}
 
 }
 
