@@ -6,18 +6,6 @@ interface Auth_OAuth_Consumer
 {
 
 	/**
-	 * Get the consumer key for this consumer.
-	 */
-	public function getKey();
-
-
-	/**
-	 * Get the consumer secret for this consumer.
-	 */
-	public function getSecret();
-
-
-	/**
 	 * Get a new request token.
 	 */
 	public static function requestToken ( $consumer_key, $user );
