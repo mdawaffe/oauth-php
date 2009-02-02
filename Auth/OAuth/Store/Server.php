@@ -42,6 +42,14 @@ interface Auth_OAuth_Store_Server
 	 */
 	public function getAccessTokenURI();
 
+
+	/**
+	 * Get the supported signature methods.
+	 *
+	 * @return array supported signature methods
+	 */
+	public function getSignatureMethods();
+
 }
 
 ?>

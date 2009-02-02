@@ -14,6 +14,8 @@ class Auth_OAuth_Store_ServerImpl implements Auth_OAuth_Store_Server
 
 	private $access_token_uri;
 
+	private $signature_methods;
+
 	public function __construct ( $key, $secret )
 	{
 
@@ -71,6 +73,17 @@ class Auth_OAuth_Store_ServerImpl implements Auth_OAuth_Store_Server
 	public function getAccessTokenURI()
 	{
 		return $this->access_token_uri;
+	}
+
+
+	/**
+	 * Get the supported signature methods.
+	 *
+	 * @return array supported signature methods
+	 */
+	public function getSignatureMethods()
+	{
+		return $this->signature_methods;
 	}
 
 }
