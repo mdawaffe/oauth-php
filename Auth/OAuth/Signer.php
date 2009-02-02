@@ -1,11 +1,13 @@
 <?php
 
-require_once 'Auth/OAuth/Signer.php';
 require_once 'Auth/OAuth/Request.php';
 require_once 'Auth/OAuth/Util.php';
+require_once 'Auth/OAuth/Store/Consumer.php';
+require_once 'Auth/OAuth/Store/Server.php';
 
 /**
- * An OAuth Signer is responsible for signing and verifying signatures of OAuth Requests.
+ * An OAuth Signer is responsible for signing and verifying signatures of OAuth
+ * Requests.
  */
 class Auth_OAuth_Signer
 {
@@ -26,6 +28,31 @@ class Auth_OAuth_Signer
 
 
 	/**
+	 * Get the name of the correct Auth_OAuth_SignatureMethod implementation
+	 * based on the provided string.
+	 *
+	 */
+	private function getSignatureMethodClass ( $method )
+	{
+		if (array_key_exists($method, $this->signature_methods)) {
+			return $this->signature_methods[$method];
+		}
+	}
+
+
+	/**
+	 * Add a signature method to be used by this signer.
+	 *
+	 * @param string $class name of a class that implements Auth_OAuth_SignatureMethod
+	 */
+	public function addSignatureMethod ( $class )
+	{
+		$method_name = call_user_func( array($class, 'name') );
+		$this->signature_methods[$method_name] = $class;
+	}
+
+
+	/**
 	 * Get signature base string for a request.
 	 *
 	 * @param Auth_OAuth_Request $request OAuth request
@@ -42,57 +69,49 @@ class Auth_OAuth_Signer
 
 
 	/**
-	 * Add a signature method to be used by this signer.
-	 *
-	 * @param string $class name of a class that implements Auth_OAuth_SignatureMethod
-	 */
-	public function addSignatureMethod( $class )
-	{
-		$method_name = call_user_func( array($class, 'name') );
-		$this->signature_methods[$method_name] = $class;
-	}
-
-
-	/**
 	 * Sign our message in the way the server understands.
-	 * Set the needed oauth_xxxx parameters.
 	 *
 	 * @param Auth_OAuth_Request $request OAuth request
 	 * @param int user			(optional) user that wants to sign this request
 	 * @exception OAuthException when there is no oauth relation with the server
 	 * @exception OAuthException when we don't support the signing methods of the server
 	 */
-	public function sign ( Auth_OAuth_Request $request,  Auth_OAuth_Store_Consumer $consumer, Auth_OAuth_Token $token )
+	public function sign ( Auth_OAuth_Request $request,  Auth_OAuth_Store_Server $server, Auth_OAuth_Token $token )
 	{
+		foreach ($server->getSignatureMethods as $method) {
+			if ($this->getSignatureMethodClass($method)) {
+				$signature_method = $method;
+			}
+		}
+		if ($signature_method) {
+			$request->setParam('oauth_signature_method', $signature_method);
+			$signature = $this->getSignature($request, $consumer, $token);
+			$request->setParam('oauth_signature', $signature);
+		}
 	}
 
 
-	public function getSignature ( Auth_OAuth_Request $request,  Auth_OAuth_Store_Consumer $consumer, Auth_OAuth_Token $token )
+	/**
+	 * Build the OAuth Signature for a request.
+	 *
+	 * @return string OAuth signature
+	 */
+	public function getSignature ( Auth_OAuth_Request $request,  Auth_OAuth_Store_Server $server, Auth_OAuth_Token $token )
 	{
-		$signature_class = $this->getSignatureMethod($request->getSignatureMethod());
+		$signature_method = $request->getSignatureMethod();
+		$signature_class = $this->getSignatureMethodClass($signature_method);
+
 		if ($signature_class) {
 			$signature = call_user_func(
 				array($signature_class, 'signature'),
 				$this->getSignatureBaseString($request),
-				$consumer->getSecret(),
+				$server->getSecret(),
 				$token->getSecret()
 			);
 
 			return $signature;
 		}
 
-	}
-
-
-	/**
-	 * Get the name of the correct Auth_OAuth_SignatureMethod implementation based on the provided string.
-	 *
-	 */
-	private function getSignatureMethod ( $method )
-	{
-		if (array_key_exists($method, $this->signature_methods)) {
-			return $this->signature_methods[$method];
-		}
 	}
 
 
@@ -112,20 +131,36 @@ class Auth_OAuth_Signer
 	 *
 	 * @return boolean
 	 */
-	public function requestIsSigned ()
+	public static function requestIsSigned ()
 	{
 	}
 
 
 	/**
-	 * Verify the request
+	 * Verify the request signature.
 	 *
 	 * @param string token_type the kind of token needed, defaults to 'access' (false, 'access', 'request')
 	 * @exception OAuthException thrown when the request did not verify
 	 * @return int user_id associated with token (false when no user associated)
 	 */
-	public function verify ( Auth_OAuth_Request $request, $token_type )
+	public function verify ( Auth_OAuth_Request $request, Auth_OAuth_Store_Consumer $consumer, Auth_OAuth_Token $token )
 	{
+		$valid = false;
+
+		$signature_method = $request->getSignatureMethod();
+		$signature_class = $this->getSignatureMethodClass($signature_method);
+
+		if ($signature_class) {
+			$valid = call_user_func(
+				array($signature_class, 'verify'),
+				$this->getSignatureBaseString($request),
+				$consumer->getSecret(),
+				$token->getSecret(),
+				$request->getSignature()
+			);
+		}
+
+		return $valid;
 	}
 
 }

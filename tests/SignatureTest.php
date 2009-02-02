@@ -5,7 +5,6 @@ require_once 'Auth/OAuth/RequestImpl.php';
 require_once 'Auth/OAuth/Signer.php';
 require_once 'Auth/OAuth/SignatureMethod/PLAINTEXT.php';
 require_once 'Auth/OAuth/SignatureMethod/HMAC_SHA1.php';
-require_once 'Auth/OAuth/Store/ConsumerImpl.php';
 require_once 'Auth/OAuth/Store/ServerImpl.php';
 require_once 'Auth/OAuth/TokenImpl.php';
 
@@ -68,11 +67,11 @@ class SignatureTest extends PHPUnit_Framework_TestCase {
 					'oauth_signature'=>'ignored', 'oauth_signature_method'=>'HMAC-SHA1');
 		OAuthTestUtils::build_request('GET', 'http://photos.example.net/photos', $params);
 		$request = new Auth_OAuth_RequestImpl();
-		$consumer = new Auth_OAuth_Store_ConsumerImpl('key', 'kd94hf93k423kf44');
+		$server = new Auth_OAuth_Store_ServerImpl('key', 'kd94hf93k423kf44');
 		$token = new Auth_OAuth_TokenImpl('token', 'pfkkdhi9sl3r4s00');
 
 		$this->assertEquals('HMAC-SHA1', $request->getSignatureMethod());
-		$this->assertEquals('tR3+Ty81lMeYAr/Fid0kMTYa/WM=', $signer->getSignature($request, $consumer, $token));
+		$this->assertEquals('tR3+Ty81lMeYAr/Fid0kMTYa/WM=', $signer->getSignature($request, $server, $token));
 
 
 		// test 2
@@ -82,11 +81,11 @@ class SignatureTest extends PHPUnit_Framework_TestCase {
 					'oauth_signature'=>'ignored', 'oauth_signature_method'=>'PLAINTEXT');
 		OAuthTestUtils::build_request('GET', 'http://photos.example.net/photos', $params);
 		$request = new Auth_OAuth_RequestImpl();
-		$consumer = new Auth_OAuth_Store_ConsumerImpl('key', 'kd94hf93k423kf44');
+		$server = new Auth_OAuth_Store_ServerImpl('key', 'kd94hf93k423kf44');
 		$token = new Auth_OAuth_TokenImpl('token', 'pfkkdhi9sl3r4s00');
 
 		$this->assertEquals('PLAINTEXT', $request->getSignatureMethod());
-		$this->assertEquals('kd94hf93k423kf44&pfkkdhi9sl3r4s00', $signer->getSignature($request, $consumer, $token));
+		$this->assertEquals('kd94hf93k423kf44&pfkkdhi9sl3r4s00', $signer->getSignature($request, $server, $token));
 	}
 
 

@@ -18,7 +18,8 @@ class Auth_OAuth_Store_ServerImpl implements Auth_OAuth_Store_Server
 
 	public function __construct ( $key, $secret )
 	{
-
+		$this->key = $key;
+		$this->secret = $secret;
 	}
 
 	/**
