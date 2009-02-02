@@ -1,7 +1,6 @@
 <?php
 
 require_once 'Auth/OAuth/SignatureMethod.php';
-require_once 'Auth/OAuth/Request.php';
 require_once 'Auth/OAuth/Util.php';
 
 
@@ -15,30 +14,28 @@ class Auth_OAuth_SignatureMethod_PLAINTEXT implements Auth_OAuth_SignatureMethod
 
 	/**
 	 * Calculate the signature using PLAINTEXT.
-	 * 
-	 * @param OAuthRequest request
+	 *
 	 * @param string base_string
 	 * @param string consumer_secret
 	 * @param string token_secret
-	 * @return string  
+	 * @return string
 	 */
-	function signature ( Auth_OAuth_Request $request, $base_string, $consumer_secret, $token_secret )
+	function signature ( $base_string, $consumer_secret, $token_secret )
 	{
 		return Auth_OAuth_Util::encode($consumer_secret) . '&' . Auth_OAuth_Util::encode($token_secret);
 	}
 
 
 	/**
-	 * Check if the request signature corresponds to the one calculated for the request.
-	 * 
-	 * @param OAuthRequest request
+	 * Check if the provided signature corresponds to the one calculated for the base_string.
+	 *
 	 * @param string base_string	data to be signed, usually the base string, can be a request body
 	 * @param string consumer_secret
 	 * @param string token_secret
 	 * @param string signature		(urldecoded) signature
 	 * @return string
 	 */
-	public function verify ( Auth_OAuth_Request $request, $base_string, $consumer_secret, $token_secret, $signature )
+	public function verify ( $base_string, $consumer_secret, $token_secret, $signature )
 	{
 		if (strpos($signature, '&') !== false) {
 			list($c_secret, $t_secret) = explode('&', $signature, 2);

@@ -1,7 +1,6 @@
 <?php
 
 require_once 'Auth/OAuth/SignatureMethod.php';
-require_once 'Auth/OAuth/Request.php';
 require_once 'Auth/OAuth/Util.php';
 
 class Auth_OAuth_SignatureMethod_HMAC_SHA1 implements Auth_OAuth_SignatureMethod
@@ -15,14 +14,13 @@ class Auth_OAuth_SignatureMethod_HMAC_SHA1 implements Auth_OAuth_SignatureMethod
 	/**
 	 * Calculate the signature using HMAC-SHA1
 	 * This function is copyright Andy Smith, 2007.
-	 * 
-	 * @param Auth_OAuth_Request request
+	 *
 	 * @param string base_string
 	 * @param string consumer_secret
 	 * @param string token_secret
-	 * @return string  
+	 * @return string
 	 */
-	public function signature ( Auth_OAuth_Request $request, $base_string, $consumer_secret, $token_secret )
+	public function signature ( $base_string, $consumer_secret, $token_secret )
 	{
 		$hmac = self::buildHMAC($base_string, $consumer_secret, $token_secret);
 		return base64_encode($hmac);
@@ -70,16 +68,15 @@ class Auth_OAuth_SignatureMethod_HMAC_SHA1 implements Auth_OAuth_SignatureMethod
 
 
 	/**
-	 * Check if the request signature corresponds to the one calculated for the request.
-	 * 
-	 * @param Auth_OAuth_Request request
+	 * Check if the provided signature corresponds to the one calculated for the base_string.
+	 *
 	 * @param string base_string	data to be signed, usually the base string, can be a request body
 	 * @param string consumer_secret
 	 * @param string token_secret
 	 * @param string signature		(urldecoded) signature
 	 * @return string
 	 */
-	public function verify ( Auth_OAuth_Request $request, $base_string, $consumer_secret, $token_secret, $signature )
+	public function verify ( $base_string, $consumer_secret, $token_secret, $signature )
 	{
 		$decoded_signature = base64_decode($signature);
 		$valid_signature = self::buildHMAC($base_string, $consumer_secret, $token_secret);

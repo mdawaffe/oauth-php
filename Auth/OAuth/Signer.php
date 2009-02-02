@@ -73,7 +73,6 @@ class Auth_OAuth_Signer
 		if ($signature_class) {
 			$signature = call_user_func(
 				array($signature_class, 'signature'),
-				$request,
 				$this->getSignatureBaseString($request),
 				$consumer->getSecret(),
 				$token->getSecret()

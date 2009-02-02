@@ -97,18 +97,18 @@ class SignatureTest extends PHPUnit_Framework_TestCase {
 		// test 1
 		$consumer_secret = 'kd94hf93k423kf44';
 		$token_secret = 'pfkkdhi9sl3r4s00';
-		$signature = Auth_OAuth_SignatureMethod_PLAINTEXT::signature($request, null, $consumer_secret, $token_secret);
+		$signature = Auth_OAuth_SignatureMethod_PLAINTEXT::signature(null, $consumer_secret, $token_secret);
 		$this->assertEquals('kd94hf93k423kf44&pfkkdhi9sl3r4s00', $signature);
-		$this->assertTrue(Auth_OAuth_SignatureMethod_PLAINTEXT::verify($request, null, $consumer_secret, $token_secret, $signature));
-		$this->assertFalse(Auth_OAuth_SignatureMethod_PLAINTEXT::verify($request, null, $consumer_secret, $token_secret, 'foo'));
+		$this->assertTrue(Auth_OAuth_SignatureMethod_PLAINTEXT::verify(null, $consumer_secret, $token_secret, $signature));
+		$this->assertFalse(Auth_OAuth_SignatureMethod_PLAINTEXT::verify(null, $consumer_secret, $token_secret, 'foo'));
 
 		// test 2
 		$consumer_secret = 'kd94h+93k%23kf44';
 		$token_secret = 'pfkkdh/9sl3r4&00';
-		$signature = Auth_OAuth_SignatureMethod_PLAINTEXT::signature($request, null, $consumer_secret, $token_secret);
+		$signature = Auth_OAuth_SignatureMethod_PLAINTEXT::signature(null, $consumer_secret, $token_secret);
 		$this->assertEquals('kd94h%2B93k%2523kf44&pfkkdh%2F9sl3r4%2600', $signature);
-		$this->assertTrue(Auth_OAuth_SignatureMethod_PLAINTEXT::verify($request, null, $consumer_secret, $token_secret, $signature));
-		$this->assertFalse(Auth_OAuth_SignatureMethod_PLAINTEXT::verify($request, null, $consumer_secret, $token_secret, 'foo'));
+		$this->assertTrue(Auth_OAuth_SignatureMethod_PLAINTEXT::verify(null, $consumer_secret, $token_secret, $signature));
+		$this->assertFalse(Auth_OAuth_SignatureMethod_PLAINTEXT::verify(null, $consumer_secret, $token_secret, 'foo'));
 	}
 
 
@@ -126,18 +126,18 @@ class SignatureTest extends PHPUnit_Framework_TestCase {
 		// test 1
 		$consumer_secret = 'kd94hf93k423kf44';
 		$token_secret = 'pfkkdhi9sl3r4s00';
-		$signature = Auth_OAuth_SignatureMethod_HMAC_SHA1::signature($request, $base_string, $consumer_secret, $token_secret);
+		$signature = Auth_OAuth_SignatureMethod_HMAC_SHA1::signature($base_string, $consumer_secret, $token_secret);
 		$this->assertEquals('tR3+Ty81lMeYAr/Fid0kMTYa/WM=', $signature);
-		$this->assertTrue(Auth_OAuth_SignatureMethod_HMAC_SHA1::verify($request, $base_string, $consumer_secret, $token_secret, $signature));
-		$this->assertFalse(Auth_OAuth_SignatureMethod_HMAC_SHA1::verify($request, $base_string, $consumer_secret, $token_secret, 'foo'));
+		$this->assertTrue(Auth_OAuth_SignatureMethod_HMAC_SHA1::verify($base_string, $consumer_secret, $token_secret, $signature));
+		$this->assertFalse(Auth_OAuth_SignatureMethod_HMAC_SHA1::verify($base_string, $consumer_secret, $token_secret, 'foo'));
 
 		// test 2
 		$consumer_secret = 'kd94h+93k%23kf44';
 		$token_secret = 'pfkkdh/9sl3r4&00';
-		$signature = Auth_OAuth_SignatureMethod_HMAC_SHA1::signature($request, $base_string, $consumer_secret, $token_secret);
+		$signature = Auth_OAuth_SignatureMethod_HMAC_SHA1::signature($base_string, $consumer_secret, $token_secret);
 		$this->assertEquals('UCASL/lr96TeEnnnkTSTH2dJN40=', $signature);
-		$this->assertTrue(Auth_OAuth_SignatureMethod_HMAC_SHA1::verify($request, $base_string, $consumer_secret, $token_secret, $signature));
-		$this->assertFalse(Auth_OAuth_SignatureMethod_HMAC_SHA1::verify($request, $base_string, $consumer_secret, $token_secret, 'foo'));
+		$this->assertTrue(Auth_OAuth_SignatureMethod_HMAC_SHA1::verify($base_string, $consumer_secret, $token_secret, $signature));
+		$this->assertFalse(Auth_OAuth_SignatureMethod_HMAC_SHA1::verify($base_string, $consumer_secret, $token_secret, 'foo'));
 	}
 
 	public function testManualHMAC() {
