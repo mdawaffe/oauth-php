@@ -76,12 +76,12 @@ class Auth_OAuth_SignatureMethod_HMAC_SHA1 implements Auth_OAuth_SignatureMethod
 	 * @param string base_string	data to be signed, usually the base string, can be a request body
 	 * @param string consumer_secret
 	 * @param string token_secret
-	 * @param string signature		from the request, still urlencoded
+	 * @param string signature		(urldecoded) signature
 	 * @return string
 	 */
 	public function verify ( Auth_OAuth_Request $request, $base_string, $consumer_secret, $token_secret, $signature )
 	{
-		$decoded_signature = base64_decode(Auth_OAuth_Util::decode($signature));
+		$decoded_signature = base64_decode($signature);
 		$valid_signature = self::buildHMAC($base_string, $consumer_secret, $token_secret);
 
 		return ($valid_signature == $decoded_signature);

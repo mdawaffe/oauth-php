@@ -15,7 +15,7 @@ interface Auth_OAuth_Request
 
 
 	/**
-	 * Return the normalised url for signature checks
+	 * Return the normalised url for signature checks.
 	 *
 	 * @return string
 	 */
@@ -23,7 +23,7 @@ interface Auth_OAuth_Request
 
 
 	/**
-	 * Get all request parameters
+	 * Get all request parameters.  Values are NOT url encoded.
 	 *
 	 * @return array associative array of parameters
 	 */
@@ -32,7 +32,7 @@ interface Auth_OAuth_Request
 
 	/**
 	 * Return the complete parameter string for the signature check.
-	 * All parameters are correctly urlencoded and sorted on name and value
+	 * All parameters are correctly urlencoded and sorted on name and value.
 	 *
 	 * @return array associative array of parameters
 	 */
@@ -40,23 +40,21 @@ interface Auth_OAuth_Request
 
 
 	/**
-	 * Get a parameter, value is always urlencoded.
+	 * Get a parameter. Return value is NOT url encoded.
 	 *
-	 * @param string	parameter name
-	 * @param boolean	urldecode	set to true to decode the value upon return
-	 * @return string value		false when not found
+	 * @param string $name parameter name
+	 * @return string|boolean parameter value, or false when not found
 	 */
-	public function getParam ( $name, $urldecode );
+	public function getParam ( $name );
 
 
 	/**
-	 * Set a parameter.
+	 * Set a parameter.  Value should NOT be url encoded.
 	 *
 	 * @param string	parameter name
 	 * @param string	parameter value
-	 * @param boolean	encoded	set to true when the values are already encoded
 	 */
-	public function setParam ( $name, $value, $encoded );
+	public function setParam ( $name, $value );
 
 
 	/**

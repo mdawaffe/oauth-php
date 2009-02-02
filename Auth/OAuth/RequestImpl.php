@@ -33,10 +33,29 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 
 		$this->body = $body;
 
-		if (empty($parameters)) $parameters = $this->getRequestParameters();
+		if (empty($parameters)) {
+			$parameters = array();
+			$request_parameters = $this->getRequestParameters();
+
+			// we must decode the raw request parameters
+			foreach ($request_parameters as $key => $value) {
+				$key = Auth_OAuth_Util::decode($key);
+
+				if (is_array($value)) {
+					$values = array();
+					foreach ($value as $v) {
+						$values[] = Auth_OAuth_Util::decode($v);
+					}
+					$value = $values;
+				} else {
+					$value = Auth_OAuth_Util::decode($value);
+				}
+
+				$parameters[$key] = $value;
+			}
+		}
+
 		$this->parameters = $parameters;
-
-
 	}
 
 
@@ -87,7 +106,7 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 
 
 	/**
-	 * Get all request parameters
+	 * Get all request parameters.
 	 *
 	 * @return array associative array of parameters
 	 */
@@ -129,22 +148,15 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 	}
 
 	/**
-	 * Get a parameter, value is always urlencoded.
+	 * Get a parameter. Value is never urlencoded.
 	 *
 	 * @param string	parameter name
-	 * @param boolean	urldecode	set to true to decode the value upon return
 	 * @return string value		false when not found
 	 */
-	public function getParam ( $name, $urldecode )
+	public function getParam ( $name )
 	{
 		if (array_key_exists($name, $this->parameters)) {
-			$value = $this->parameters[$name];
-
-			if ($urldecode) {
-				// TODO
-			}
-
-			return $value;
+			return $this->parameters[$name];
 		}
 
 	}
@@ -155,14 +167,9 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 	 *
 	 * @param string	parameter name
 	 * @param string	parameter value
-	 * @param boolean	encoded	set to true when the values are already encoded
 	 */
-	public function setParam ( $name, $value, $encoded )
+	public function setParam ( $name, $value )
 	{
-		if ($encoded) {
-			// TODO
-		}
-
 		$this->parameters[$name] = $value;
 	}
 
@@ -195,7 +202,7 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 	 */
 	public function getVersion()
 	{
-		return $this->getParam('oauth_version', true);
+		return $this->getParam('oauth_version');
 	}
 
 
@@ -206,7 +213,7 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 	 */
 	public function getConsumerKey ()
 	{
-		return $this->getParam('oauth_consumer_key', true);
+		return $this->getParam('oauth_consumer_key');
 	}
 
 
@@ -217,7 +224,7 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 	 */
 	public function getSignatureMethod()
 	{
-		return $this->getParam('oauth_signature_method', true);
+		return $this->getParam('oauth_signature_method');
 	}
 
 
@@ -228,7 +235,7 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 	 */
 	public function getSignature()
 	{
-		return $this->getParam('oauth_signature', true);
+		return $this->getParam('oauth_signature');
 	}
 
 
@@ -239,7 +246,7 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 	 */
 	public function getTimestamp()
 	{
-		return $this->getParam('oauth_timestamp', true);
+		return $this->getParam('oauth_timestamp');
 	}
 
 
@@ -250,7 +257,7 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 	 */
 	public function getNonce()
 	{
-		return $this->getParam('oauth_nonce', true);
+		return $this->getParam('oauth_nonce');
 	}
 
 
@@ -261,7 +268,7 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 	 */
 	public function getToken()
 	{
-		return $this->getParam('oauth_token', true);
+		return $this->getParam('oauth_token');
 	}
 
 
@@ -272,22 +279,24 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 	 */
 	public function getCallback()
 	{
-		return $this->getParam('oauth_callback', true);
+		return $this->getParam('oauth_callback');
 	}
 
 
 	/**
-	 * Get the request headers.
+	 * Get the HTTP request headers.  Header names have been normalized, stripping
+	 * the leading 'HTTP_' if present, and capitalizing only the first letter
+	 * of each word.
 	 *
 	 * @return array associative array of request headers.
 	 */
 	private static function getRequestHeaders() {
 		if (function_exists('apache_request_headers')) {
 			// We need this to get the actual Authorization:
-			// header because apache tends to tell us it doesn't exist. 
+			// header because apache tends to tell us it doesn't exist.
 			return apache_request_headers();
 		}
-	
+
 		// If we're not using apache, we just have to hope that _SERVER actually
 		// contains what we need.
 		$headers = array();
@@ -312,6 +321,11 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 	 *   - Authorization header
 	 *   - POST body
 	 *   - GET query parameters
+	 *
+	 * Parameter values are returned exactly as they appear in the request, and
+	 * have not been urldecoded.
+	 *
+	 * @return array associative array of request parameters.
 	 */
 	private function getRequestParameters() {
 
