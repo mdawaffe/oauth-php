@@ -28,7 +28,7 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 		if (empty($method)) $method = $_SERVER['REQUEST_METHOD'];
 		$this->method = strtoupper($method);
 
-		if (empty($headers)) $headers = self::getRequestHeaders();
+		if (empty($headers)) $headers = Auth_OAuth_Util::getRequestHeaders();
 		$this->headers = $headers;
 
 		$this->body = $body;
@@ -280,37 +280,6 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 	public function getCallback()
 	{
 		return $this->getParam('oauth_callback');
-	}
-
-
-	/**
-	 * Get the HTTP request headers.  Header names have been normalized, stripping
-	 * the leading 'HTTP_' if present, and capitalizing only the first letter
-	 * of each word.
-	 *
-	 * @return array associative array of request headers.
-	 */
-	private static function getRequestHeaders() {
-		if (function_exists('apache_request_headers')) {
-			// We need this to get the actual Authorization:
-			// header because apache tends to tell us it doesn't exist.
-			return apache_request_headers();
-		}
-
-		// If we're not using apache, we just have to hope that _SERVER actually
-		// contains what we need.
-		$headers = array();
-
-		foreach ($_SERVER as $key => $value) {
-			if (substr($key, 0, 5) == 'HTTP_') {
-				// this is chaos, basically it is just there to capitalize the first
-				// letter of every word that is not an initial HTTP and strip HTTP
-				// code from przemek
-				$key = str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($key, 5)))));
-				$headers[$key] = $value;
-			}
-		}
-		return $headers;
 	}
 
 
