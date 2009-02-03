@@ -14,6 +14,7 @@ class Auth_OAuth_Signer
 
 	private $signature_methods;
 
+
 	/**
 	 * Constructor.
 	 */
@@ -31,6 +32,8 @@ class Auth_OAuth_Signer
 	 * Get the name of the correct Auth_OAuth_SignatureMethod implementation
 	 * based on the provided string.
 	 *
+	 * @param string OAuth signature method
+	 * @return string name of class which handles this signature method
 	 */
 	private function getSignatureMethodClass ( $method )
 	{
@@ -60,43 +63,26 @@ class Auth_OAuth_Signer
 	 */
 	public function getSignatureBaseString ( Auth_OAuth_Request $request )
 	{
-		$base_string = Auth_OAuth_Util::encode($request->getMethod())
+		$base_string = Auth_OAuth_Util::encode( $request->getMethod())
 			. '&' . Auth_OAuth_Util::encode($request->getRequestUrl())
-			. '&' . Auth_OAuth_Util::encode($request->getNormalizedParameterString());
+			. '&' . Auth_OAuth_Util::encode($request->getNormalizedParameterString()
+		);
 
 		return $base_string;
 	}
 
 
 	/**
-	 * Sign our message in the way the server understands.
+	 * Build the OAuth Signature for a request.  The signature method used to
+	 * build the signature is determined by the signature methods supported by
+	 * the provided OAuth server.
 	 *
-	 * @param Auth_OAuth_Request $request OAuth request
-	 * @param int user			(optional) user that wants to sign this request
-	 * @exception OAuthException when there is no oauth relation with the server
-	 * @exception OAuthException when we don't support the signing methods of the server
-	 */
-	public function sign ( Auth_OAuth_Request $request,  Auth_OAuth_Store_Server $server, Auth_OAuth_Token $token )
-	{
-		foreach ($server->getSignatureMethods as $method) {
-			if ($this->getSignatureMethodClass($method)) {
-				$signature_method = $method;
-			}
-		}
-		if ($signature_method) {
-			$request->setParam('oauth_signature_method', $signature_method);
-			$signature = $this->getSignature($request, $consumer, $token);
-			$request->setParam('oauth_signature', $signature);
-		}
-	}
-
-
-	/**
-	 * Build the OAuth Signature for a request.
-	 *
+	 * @param Auth_OAuth_Request $request OAuth request to build signature for
+	 * @param Auth_OAuth_Store_Server $server OAuth server to use for building the signature
+	 * @param Auth_OAuth_Token $token OAuth token to use for building the signature
 	 * @return string OAuth signature
 	 */
-	public function getSignature ( Auth_OAuth_Request $request,  Auth_OAuth_Store_Server $server, Auth_OAuth_Token $token )
+	public function getSignature ( Auth_OAuth_Request $request, Auth_OAuth_Store_Server $server, Auth_OAuth_Token $token )
 	{
 		$signature_method = $request->getSignatureMethod();
 		$signature_class = $this->getSignatureMethodClass($signature_method);
@@ -116,6 +102,29 @@ class Auth_OAuth_Signer
 
 
 	/**
+	 * Sign the OAuth request.  This will set the 'oauth_signature' and
+	 * 'oauth_signature_method' parameters on the provided OAuth Request.
+	 *
+	 * @param Auth_OAuth_Request $request OAuth request to sign
+	 * @param Auth_OAuth_Store_Server $server OAuth server to use for building the signature
+	 * @param Auth_OAuth_Token $token OAuth token to use for building the signature
+	 */
+	public function sign ( Auth_OAuth_Request $request, Auth_OAuth_Store_Server $server, Auth_OAuth_Token $token )
+	{
+		foreach ($server->getSignatureMethods as $method) {
+			if ($this->getSignatureMethodClass($method)) {
+				$signature_method = $method;
+			}
+		}
+		if ($signature_method) {
+			$request->setParam('oauth_signature_method', $signature_method);
+			$signature = $this->getSignature($request, $consumer, $token);
+			$request->setParam('oauth_signature', $signature);
+		}
+	}
+
+
+	/**
 	 * Build the Authorization header for an OAuth request.
 	 *
 	 * @param Auth_OAuth_Request $request OAuth request
@@ -127,12 +136,24 @@ class Auth_OAuth_Signer
 
 
 	/**
-	 * See if the current HTTP request is signed with OAuth
+	 * See if the current HTTP request is signed with OAuth.
 	 *
-	 * @return boolean
+	 * @return boolean true if the request is signed with OAuth
 	 */
 	public static function requestIsSigned ()
 	{
+		$signed = false;
+
+		if (array_key_exists('oauth_signature', $_REQUEST) && !empty($_REQUEST['oauth_signature'])) {
+			$signed = true;
+		} else {
+			$headers = Auth_OAuth_Util::getRequestHeaders();
+			if (array_key_exists('Authorization', $headers) && substr($headers['Authorization'], 0, 6) == 'OAuth ') {
+				$signed = true;
+			}
+		}
+
+		return $signed;
 	}
 
 
