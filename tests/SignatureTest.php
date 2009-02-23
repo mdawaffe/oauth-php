@@ -143,10 +143,9 @@ class SignatureTest extends PHPUnit_Framework_TestCase {
 		$base_string = '865be12511f22e786e42f5d6bddaabb0';
 		$key = '22d7217dce082e6a8f89189788f3f7bd';
 
-		$hmac1 = hash_hmac('sha1', $base_string, $key, true);
-		$hmac2 = HMAC_Test::test_manual_hmac('sha1', $base_string, $key);
+		$hmac = HMAC_Test::test_manual_hmac('sha1', $base_string, $key);
 
-		$this->assertEquals($hmac1, $hmac2);
+		$this->assertEquals('p0mLOgt8xwhBleWX0m57MCBj7wc=', base64_encode($hmac));
 	}
 }
 
