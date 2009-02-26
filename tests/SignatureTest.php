@@ -10,6 +10,9 @@ require_once 'Auth/OAuth/TokenImpl.php';
 
 class SignatureTest extends PHPUnit_Framework_TestCase {
 
+	/**
+	 * Test that the signature base string is created properly.
+	 */
 	public function testSignatureBaseString() {
 		$signer = new Auth_OAuth_Signer();
 
@@ -53,42 +56,8 @@ class SignatureTest extends PHPUnit_Framework_TestCase {
 
 
 	/**
-	 * We only test two entries here. This is just to test that the correct
-	 * signature method is chosen. Generation of the signatures is tested
-	 * elsewhere, and so is the base-string the signature build upon.
+	 * Test the PLAINTEXT signature method.
 	 */
-	public function testBuildSignature() {
-		$signer = new Auth_OAuth_Signer();
-
-		// test 1
-		$params = array('file'=>'vacation.jpg', 'size'=>'original', 'oauth_version'=>'1.0',
-					'oauth_consumer_key'=>'dpf43f3p2l4k3l03', 'oauth_token'=>'nnch734d00sl2jdk',
-					'oauth_timestamp'=>'1191242096', 'oauth_nonce'=>'kllo9940pd9333jh',
-					'oauth_signature'=>'ignored', 'oauth_signature_method'=>'HMAC-SHA1');
-		OAuthTestUtils::build_request('GET', 'http://photos.example.net/photos', $params);
-		$request = new Auth_OAuth_RequestImpl();
-		$server = new Auth_OAuth_Store_ServerImpl('key', 'kd94hf93k423kf44');
-		$token = new Auth_OAuth_TokenImpl('token', 'pfkkdhi9sl3r4s00');
-
-		$this->assertEquals('HMAC-SHA1', $request->getSignatureMethod());
-		$this->assertEquals('tR3+Ty81lMeYAr/Fid0kMTYa/WM=', $signer->getSignature($request, $server, $token));
-
-
-		// test 2
-		$params = array('file'=>'vacation.jpg', 'size'=>'original', 'oauth_version'=>'1.0',
-					'oauth_consumer_key'=>'dpf43f3p2l4k3l03', 'oauth_token'=>'nnch734d00sl2jdk',
-					'oauth_timestamp'=>'1191242096', 'oauth_nonce'=>'kllo9940pd9333jh',
-					'oauth_signature'=>'ignored', 'oauth_signature_method'=>'PLAINTEXT');
-		OAuthTestUtils::build_request('GET', 'http://photos.example.net/photos', $params);
-		$request = new Auth_OAuth_RequestImpl();
-		$server = new Auth_OAuth_Store_ServerImpl('key', 'kd94hf93k423kf44');
-		$token = new Auth_OAuth_TokenImpl('token', 'pfkkdhi9sl3r4s00');
-
-		$this->assertEquals('PLAINTEXT', $request->getSignatureMethod());
-		$this->assertEquals('kd94hf93k423kf44&pfkkdhi9sl3r4s00', $signer->getSignature($request, $server, $token));
-	}
-
-
 	public function testPlaintext() {
 		OAuthTestUtils::build_request('POST', 'http://testbed/test', array());
 		$request = new Auth_OAuth_RequestImpl();
@@ -111,16 +80,13 @@ class SignatureTest extends PHPUnit_Framework_TestCase {
 	}
 
 
+	/**
+	 * Test the HMAC-SHA1 signature method.
+	 */
 	public function testHMAC() {
-		$params = array('file'=>'vacation.jpg', 'size'=>'original', 'oauth_version'=>'1.0',
-					'oauth_consumer_key'=>'dpf43f3p2l4k3l03', 'oauth_token'=>'nnch734d00sl2jdk',
-					'oauth_timestamp'=>'1191242096', 'oauth_nonce'=>'kllo9940pd9333jh',
-					'oauth_signature'=>'ignored', 'oauth_signature_method'=>'HMAC-SHA1');
-		OAuthTestUtils::build_request('GET', 'http://photos.example.net/photos', $params);
-
-		$request = new Auth_OAuth_RequestImpl();
-		$signer = new Auth_OAuth_Signer();
-		$base_string = $signer->getSignatureBaseString($request);
+		$base_string = 'GET&http%3A%2F%2Fphotos.example.net%2Fphotos&file%3Dvacation.jpg%26oauth_consumer_key%3Ddpf'
+			. '43f3p2l4k3l03%26oauth_nonce%3Dkllo9940pd9333jh%26oauth_signature_method%3DHMAC-SHA1%26oauth_timestam'
+			. 'p%3D1191242096%26oauth_token%3Dnnch734d00sl2jdk%26oauth_version%3D1.0%26size%3Doriginal';
 
 		// test 1
 		$consumer_secret = 'kd94hf93k423kf44';
@@ -139,13 +105,79 @@ class SignatureTest extends PHPUnit_Framework_TestCase {
 		$this->assertFalse(Auth_OAuth_SignatureMethod_HMAC_SHA1::verify($base_string, $consumer_secret, $token_secret, 'foo'));
 	}
 
-	public function testManualHMAC() {
-		$base_string = '865be12511f22e786e42f5d6bddaabb0';
-		$key = '22d7217dce082e6a8f89189788f3f7bd';
 
+	/**
+	 * Test the manually computed HMAC-SHA1 signature method.
+	 */
+	public function testManualHMAC() {
+		$base_string = 'GET&http%3A%2F%2Fphotos.example.net%2Fphotos&file%3Dvacation.jpg%26oauth_consumer_key%3Ddpf'
+			. '43f3p2l4k3l03%26oauth_nonce%3Dkllo9940pd9333jh%26oauth_signature_method%3DHMAC-SHA1%26oauth_timestam'
+			. 'p%3D1191242096%26oauth_token%3Dnnch734d00sl2jdk%26oauth_version%3D1.0%26size%3Doriginal';
+		$key = 'kd94hf93k423kf44&pfkkdhi9sl3r4s00';
 		$hmac = HMAC_Test::test_manual_hmac('sha1', $base_string, $key);
 
-		$this->assertEquals('p0mLOgt8xwhBleWX0m57MCBj7wc=', base64_encode($hmac));
+		$this->assertEquals('tR3+Ty81lMeYAr/Fid0kMTYa/WM=', base64_encode($hmac));
+	}
+
+
+	/**
+	 * Test the full signing of a request. This is just to test that the 
+	 * correct signature method is chosen. Generation of the signature base 
+	 * string and signature itself is tested elsewhere more extensively.
+	 */
+	public function testRequestSigning() {
+		$signer = new Auth_OAuth_Signer();
+
+		// test 1
+		$params = array('file'=>'vacation.jpg', 'size'=>'original', 'oauth_version'=>'1.0',
+					'oauth_consumer_key'=>'dpf43f3p2l4k3l03', 'oauth_token'=>'nnch734d00sl2jdk',
+					'oauth_timestamp'=>'1191242096', 'oauth_nonce'=>'kllo9940pd9333jh');
+		OAuthTestUtils::build_request('GET', 'http://photos.example.net/photos', $params);
+		$request = new Auth_OAuth_RequestImpl();
+		$server = new Auth_OAuth_Store_ServerImpl('key', 'kd94hf93k423kf44');
+		$server->setSignatureMethods( array('PLAINTEXT', 'HMAC-SHA1') );
+		$token = new Auth_OAuth_TokenImpl('token', 'pfkkdhi9sl3r4s00');
+
+		$signer->sign($request, $server, $token);
+		$this->assertEquals('PLAINTEXT', $request->getSignatureMethod());
+		$this->assertEquals('kd94hf93k423kf44&pfkkdhi9sl3r4s00', $request->getSignature());
+
+
+		// test 2
+		$params = array('file'=>'vacation.jpg', 'size'=>'original', 'oauth_version'=>'1.0',
+					'oauth_consumer_key'=>'dpf43f3p2l4k3l03', 'oauth_token'=>'nnch734d00sl2jdk',
+					'oauth_timestamp'=>'1191242096', 'oauth_nonce'=>'kllo9940pd9333jh');
+		OAuthTestUtils::build_request('GET', 'http://photos.example.net/photos', $params);
+		$request = new Auth_OAuth_RequestImpl();
+		$server = new Auth_OAuth_Store_ServerImpl('key', 'kd94hf93k423kf44');
+		$server->setSignatureMethods( array( 'INVALID-METHOD', 'HMAC-SHA1', 'PLAINTEXT') );
+		$token = new Auth_OAuth_TokenImpl('token', 'pfkkdhi9sl3r4s00');
+
+		$signer->sign($request, $server, $token);
+		$this->assertEquals('HMAC-SHA1', $request->getSignatureMethod());
+		$this->assertEquals('tR3+Ty81lMeYAr/Fid0kMTYa/WM=', $signer->getSignature($request, $server, $token));
+	}
+
+
+	public function testAuthorizationHeader() {
+		$signer = new Auth_OAuth_Signer();
+
+		// test 1
+		$params = array('file'=>'vacation.jpg', 'size'=>'original', 'oauth_version'=>'1.0',
+					'oauth_consumer_key'=>'dpf43f3p2l4k3l03', 'oauth_token'=>'nnch734d00sl2jdk',
+					'oauth_timestamp'=>'1191242096', 'oauth_nonce'=>'kllo9940pd9333jh');
+		OAuthTestUtils::build_request('GET', 'http://photos.example.net/photos', $params);
+		$request = new Auth_OAuth_RequestImpl();
+		$server = new Auth_OAuth_Store_ServerImpl('key', 'kd94hf93k423kf44');
+		$server->setSignatureMethods( array('PLAINTEXT', 'HMAC-SHA1') );
+		$token = new Auth_OAuth_TokenImpl('token', 'pfkkdhi9sl3r4s00');
+
+		$signer->sign($request, $server, $token);
+
+		$this->assertEquals('OAuth oauth_version="1.0", oauth_consumer_key="dpf43f3p2l4k3l03", '
+			. 'oauth_token="nnch734d00sl2jdk", oauth_timestamp="1191242096", oauth_nonce="kllo9'
+			. '940pd9333jh", oauth_signature_method="PLAINTEXT", oauth_signature="kd94hf93k423k'
+			. 'f44%26pfkkdhi9sl3r4s00"', $signer->getAuthorizationHeader($request));
 	}
 }
 
