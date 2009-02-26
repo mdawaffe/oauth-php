@@ -73,9 +73,8 @@ class Auth_OAuth_Signer
 
 
 	/**
-	 * Build the OAuth Signature for a request.  The signature method used to
-	 * build the signature is determined by the signature methods supported by
-	 * the provided OAuth server.
+	 * Build the OAuth Signature for a request.  The signature_method parameter of
+	 * the request must be populated with the signature method to be used.
 	 *
 	 * @param Auth_OAuth_Request $request OAuth request to build signature for
 	 * @param Auth_OAuth_Store_Server $server OAuth server to use for building the signature
@@ -111,14 +110,16 @@ class Auth_OAuth_Signer
 	 */
 	public function sign ( Auth_OAuth_Request $request, Auth_OAuth_Store_Server $server, Auth_OAuth_Token $token )
 	{
-		foreach ($server->getSignatureMethods as $method) {
+		foreach ($server->getSignatureMethods() as $method) {
 			if ($this->getSignatureMethodClass($method)) {
 				$signature_method = $method;
+				break;
 			}
 		}
+
 		if ($signature_method) {
 			$request->setParam('oauth_signature_method', $signature_method);
-			$signature = $this->getSignature($request, $consumer, $token);
+			$signature = $this->getSignature($request, $server, $token);
 			$request->setParam('oauth_signature', $signature);
 		}
 	}
@@ -132,6 +133,25 @@ class Auth_OAuth_Signer
 	 */
 	public function getAuthorizationHeader ( Auth_OAuth_Request $request )
 	{
+		$params = array();
+		foreach ($request->getParameters() as $name => $value) {
+			if (strncmp($name, 'oauth_', 6) == 0) {
+				$name = Auth_OAuth_Util::encode($name);
+				$value = Auth_OAuth_Util::encode($value);
+				$params[] = $name . '="' . $value . '"';
+			}
+		}
+
+		$header = 'OAuth ';
+
+		$realm = $request->getRealm();
+		if ( !empty($realm) ) 
+			$header .= 'realm="' . $realm . '", ';
+		}
+
+		$header .= implode(', ', $params);
+
+		return $header;
 	}
 
 
