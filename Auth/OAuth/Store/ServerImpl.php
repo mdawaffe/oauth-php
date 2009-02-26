@@ -56,6 +56,17 @@ class Auth_OAuth_Store_ServerImpl implements Auth_OAuth_Store_Server
 
 
 	/**
+	 * Set the request token endpoint URI.
+	 *
+	 * @param string $uri request token endpoint URI
+	 */
+	public function setRequestTokenURI( $uri )
+	{
+		$this->request_token_uri = $uri;
+	}
+
+
+	/**
 	 * Get the authorize endpoint URI.
 	 *
 	 * @return string authorize endpoint URI
@@ -63,6 +74,17 @@ class Auth_OAuth_Store_ServerImpl implements Auth_OAuth_Store_Server
 	public function getAuthorizeURI()
 	{
 		return $this->authorize_uri;
+	}
+
+
+	/**
+	 * Set the authorize endpoint URI.
+	 *
+	 * @param string $uri authorize endpoint URI
+	 */
+	public function setAuthorizeURI( $uri )
+	{
+		$this->authorize_uri = $uri;
 	}
 
 
@@ -78,6 +100,17 @@ class Auth_OAuth_Store_ServerImpl implements Auth_OAuth_Store_Server
 
 
 	/**
+	 * Set the access token endpoint URI.
+	 *
+	 * @param string $uri access token endpoint URI
+	 */
+	public function setAccessTokenURI( $uri )
+	{
+		$this->access_token_uri = $uri;
+	}
+
+
+	/**
 	 * Get the supported signature methods.
 	 *
 	 * @return array supported signature methods
@@ -85,6 +118,17 @@ class Auth_OAuth_Store_ServerImpl implements Auth_OAuth_Store_Server
 	public function getSignatureMethods()
 	{
 		return $this->signature_methods;
+	}
+
+
+	/**
+	 * Set the supported signature methods.
+	 *
+	 * @param array $methods supported signature methods
+	 */
+	public function setSignatureMethods( $methods )
+	{
+		$this->signature_methods = $methods;
 	}
 
 }
