@@ -1,6 +1,6 @@
 <?php
 
-require_once dirname(__FILE__) . '/common.php';
+require_once dirname(__FILE__) . '/TestCase.php';
 require_once 'Auth/OAuth/Util.php';
 require_once 'Auth/OAuth/RequestImpl.php';
 
@@ -12,14 +12,14 @@ require_once 'Auth/OAuth/RequestImpl.php';
  *
  * @see OAuthTestUtils::build_request
  */
-class RequestTest extends PHPUnit_Framework_TestCase {
+class RequestTest extends OAuth_TestCase {
 
 
 	/**
 	 * Test that an HTTP POST request is parsed properly.
 	 */
 	public function testFromRequestPost() {
-		OAuthTestUtils::build_request('POST', 'http://testbed/test', array('foo'=>'bar', 'baz'=>'blargh'));
+		self::build_request('POST', 'http://testbed/test', array('foo'=>'bar', 'baz'=>'blargh'));
 		$request = new Auth_OAuth_RequestImpl();
 
 		$this->assertEquals('POST', $request->getMethod());
@@ -27,7 +27,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals(array('foo'=>'bar','baz'=>'blargh'), $request->getParameters());
 
 
-		OAuthTestUtils::build_request('POST', 'http://testbed/test', array('a'=>'%25'));
+		self::build_request('POST', 'http://testbed/test', array('a'=>'%25'));
 		$request = new Auth_OAuth_RequestImpl();
 		$this->assertEquals( '%', $request->getParam('a'));
 	}
@@ -37,7 +37,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
 	 * Test that an HTTP GET request is parsed properly.
 	 */
 	public function testFromRequestPostGet() {
-		OAuthTestUtils::build_request('GET', 'http://testbed/test', array('foo'=>'bar', 'baz'=>'blargh'));
+		self::build_request('GET', 'http://testbed/test', array('foo'=>'bar', 'baz'=>'blargh'));
 		$request = new Auth_OAuth_RequestImpl();
 
 		$this->assertEquals('GET', $request->getMethod());
@@ -51,7 +51,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
 	 */
 	public function testFromRequestHeader() {
 		$test_header = 'OAuth realm="",oauth_foo=bar,oauth_baz="blargh"';
-		OAuthTestUtils::build_request('POST', 'http://testbed/test', array(), $test_header);
+		self::build_request('POST', 'http://testbed/test', array(), $test_header);
 
 		$request = new Auth_OAuth_RequestImpl();
 
@@ -70,27 +70,27 @@ class RequestTest extends PHPUnit_Framework_TestCase {
 	 * @see http://oauth.net/core/1.0/#anchor14
 	 */
 	public function testNormalizeParameters() {
-		OAuthTestUtils::build_request('POST', 'http://testbed/test', array('name'=>''));
+		self::build_request('POST', 'http://testbed/test', array('name'=>''));
 		$request = new Auth_OAuth_RequestImpl();
 		$this->assertEquals( 'name=', $request->getNormalizedParameterString());
 
-		OAuthTestUtils::build_request('POST', 'http://testbed/test', array('a'=>'b'));
+		self::build_request('POST', 'http://testbed/test', array('a'=>'b'));
 		$request = new Auth_OAuth_RequestImpl();
 		$this->assertEquals( 'a=b', $request->getNormalizedParameterString());
 
-		OAuthTestUtils::build_request('POST', 'http://testbed/test', array('a'=>'b', 'c'=>'d'));
+		self::build_request('POST', 'http://testbed/test', array('a'=>'b', 'c'=>'d'));
 		$request = new Auth_OAuth_RequestImpl();
 		$this->assertEquals( 'a=b&c=d', $request->getNormalizedParameterString());
 
-		OAuthTestUtils::build_request('POST', 'http://testbed/test', array('a'=>array('x!y', 'x y')));
+		self::build_request('POST', 'http://testbed/test', array('a'=>array('x!y', 'x y')));
 		$request = new Auth_OAuth_RequestImpl();
 		$this->assertEquals( 'a=x%20y&a=x%21y', $request->getNormalizedParameterString());
 
-		OAuthTestUtils::build_request('POST', 'http://testbed/test', array('x!y'=>'a', 'x'=>'a'));
+		self::build_request('POST', 'http://testbed/test', array('x!y'=>'a', 'x'=>'a'));
 		$request = new Auth_OAuth_RequestImpl();
 		$this->assertEquals( 'x=a&x%21y=a', $request->getNormalizedParameterString());
 
-		OAuthTestUtils::build_request('POST', 'http://testbed/test',
+		self::build_request('POST', 'http://testbed/test',
 			array('a'=>1, 'c'=>'hi there', 'f'=>array(25, 50, 'a'), 'z'=>array('p', 't')));
 		$request = new Auth_OAuth_RequestImpl();
 		$this->assertEquals( 'a=1&c=hi%20there&f=25&f=50&f=a&z=p&z=t', $request->getNormalizedParameterString());
@@ -103,20 +103,20 @@ class RequestTest extends PHPUnit_Framework_TestCase {
 	 * variables, as well as removing the default port number for URI schemes.
 	 */
 	public function testNormalizeHttpUrl() {
-		OAuthTestUtils::build_request('POST', 'http://example.com', array());
+		self::build_request('POST', 'http://example.com', array());
 		$request = new Auth_OAuth_RequestImpl();
 		$this->assertEquals('http://example.com', $request->getRequestUrl());
 
-		OAuthTestUtils::build_request('POST', 'https://example.com', array());
+		self::build_request('POST', 'https://example.com', array());
 		$request = new Auth_OAuth_RequestImpl();
 		$this->assertEquals('https://example.com', $request->getRequestUrl());
 
 		// Tests that http on !80 and https on !443 keeps the port
-		OAuthTestUtils::build_request('POST', 'https://example.com:80', array());
+		self::build_request('POST', 'https://example.com:80', array());
 		$request = new Auth_OAuth_RequestImpl();
 		$this->assertEquals('https://example.com:80', $request->getRequestUrl());
 
-		OAuthTestUtils::build_request('POST', 'http://example.com:443', array());
+		self::build_request('POST', 'http://example.com:443', array());
 		$request = new Auth_OAuth_RequestImpl();
 		$this->assertEquals('http://example.com:443', $request->getRequestUrl());
 	}

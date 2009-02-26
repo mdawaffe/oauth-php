@@ -1,6 +1,7 @@
 <?php
 
-set_include_path(dirname(__FILE__)  . '/..' . PATH_SEPARATOR . get_include_path());
+define( 'OAUTH_ROOT', dirname(dirname(__FILE__)) );
+set_include_path(OAUTH_ROOT . PATH_SEPARATOR . get_include_path());
 
 error_reporting(E_ALL);
 ini_set('display_errors', true);
@@ -11,7 +12,8 @@ require_once 'PHPUnit/Framework.php';
  * A simple utils class for methods needed
  * during some of the tests
  */
-class OAuthTestUtils {
+abstract class OAuth_TestCase extends PHPUnit_Framework_TestCase {
+
 	private static function reset_request_vars() {
 		$_SERVER = array();
 		$_POST = array();
@@ -28,7 +30,7 @@ class OAuthTestUtils {
 	 * @param array $params What params should go with the request
 	 * @param string $auth_header What to set the Authorization header to
 	 */
-	public static function build_request( $method, $uri, $params, $auth_header = '' ) {
+	protected static function build_request( $method, $uri, $params, $auth_header = '' ) {
 		self::reset_request_vars();
 
 		$method = strtoupper($method);

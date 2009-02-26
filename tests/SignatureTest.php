@@ -1,6 +1,6 @@
 <?php
 
-require_once dirname(__FILE__) . '/common.php';
+require_once dirname(__FILE__) . '/TestCase.php';
 require_once 'Auth/OAuth/RequestImpl.php';
 require_once 'Auth/OAuth/Signer.php';
 require_once 'Auth/OAuth/SignatureMethod/PLAINTEXT.php';
@@ -8,7 +8,7 @@ require_once 'Auth/OAuth/SignatureMethod/HMAC_SHA1.php';
 require_once 'Auth/OAuth/Store/ServerImpl.php';
 require_once 'Auth/OAuth/TokenImpl.php';
 
-class SignatureTest extends PHPUnit_Framework_TestCase {
+class SignatureTest extends OAuth_TestCase {
 
 	/**
 	 * Test that the signature base string is created properly.
@@ -17,12 +17,12 @@ class SignatureTest extends PHPUnit_Framework_TestCase {
 		$signer = new Auth_OAuth_Signer();
 
 		// test 1
-		OAuthTestUtils::build_request('POST', 'http://testbed/test', array('n'=>'v'));
+		self::build_request('POST', 'http://testbed/test', array('n'=>'v'));
 		$request = new Auth_OAuth_RequestImpl();
 		$this->assertEquals('POST&http%3A%2F%2Ftestbed%2Ftest&n%3Dv', $signer->getSignatureBaseString($request));
 
 		// test 2
-		OAuthTestUtils::build_request('GET', 'http://example.com', array('n'=>'v'));
+		self::build_request('GET', 'http://example.com', array('n'=>'v'));
 		$request = new Auth_OAuth_RequestImpl();
 		$this->assertEquals('GET&http%3A%2F%2Fexample.com&n%3Dv', $signer->getSignatureBaseString($request));
 
@@ -31,7 +31,7 @@ class SignatureTest extends PHPUnit_Framework_TestCase {
 		$params = array('oauth_version'=>'1.0', 'oauth_consumer_key'=>'dpf43f3p2l4k3l03',
 					'oauth_timestamp'=>'1191242090', 'oauth_nonce'=>'hsu94j3884jdopsl',
 					'oauth_signature_method'=>'PLAINTEXT', 'oauth_signature'=>'ignored');
-		OAuthTestUtils::build_request('POST', 'https://photos.example.net/request_token', $params);
+		self::build_request('POST', 'https://photos.example.net/request_token', $params);
 		$request = new Auth_OAuth_RequestImpl();
 		$this->assertEquals('POST&https%3A%2F%2Fphotos.example.net%2Frequest_token&oauth_'
 							.'consumer_key%3Ddpf43f3p2l4k3l03%26oauth_nonce%3Dhsu94j3884j'
@@ -44,7 +44,7 @@ class SignatureTest extends PHPUnit_Framework_TestCase {
 					'oauth_consumer_key'=>'dpf43f3p2l4k3l03', 'oauth_token'=>'nnch734d00sl2jdk',
 					'oauth_timestamp'=>'1191242096', 'oauth_nonce'=>'kllo9940pd9333jh',
 					'oauth_signature'=>'ignored', 'oauth_signature_method'=>'HMAC-SHA1');
-		OAuthTestUtils::build_request('GET', 'http://photos.example.net/photos', $params);
+		self::build_request('GET', 'http://photos.example.net/photos', $params);
 		$request = new Auth_OAuth_RequestImpl();
 		$this->assertEquals('GET&http%3A%2F%2Fphotos.example.net%2Fphotos&file%3Dvacation'
 							.'.jpg%26oauth_consumer_key%3Ddpf43f3p2l4k3l03%26oauth_nonce%'
@@ -59,7 +59,7 @@ class SignatureTest extends PHPUnit_Framework_TestCase {
 	 * Test the PLAINTEXT signature method.
 	 */
 	public function testPlaintext() {
-		OAuthTestUtils::build_request('POST', 'http://testbed/test', array());
+		self::build_request('POST', 'http://testbed/test', array());
 		$request = new Auth_OAuth_RequestImpl();
 
 		// test 1
@@ -132,7 +132,7 @@ class SignatureTest extends PHPUnit_Framework_TestCase {
 		$params = array('file'=>'vacation.jpg', 'size'=>'original', 'oauth_version'=>'1.0',
 					'oauth_consumer_key'=>'dpf43f3p2l4k3l03', 'oauth_token'=>'nnch734d00sl2jdk',
 					'oauth_timestamp'=>'1191242096', 'oauth_nonce'=>'kllo9940pd9333jh');
-		OAuthTestUtils::build_request('GET', 'http://photos.example.net/photos', $params);
+		self::build_request('GET', 'http://photos.example.net/photos', $params);
 		$request = new Auth_OAuth_RequestImpl();
 		$server = new Auth_OAuth_Store_ServerImpl('key', 'kd94hf93k423kf44');
 		$server->setSignatureMethods( array('PLAINTEXT', 'HMAC-SHA1') );
@@ -147,7 +147,7 @@ class SignatureTest extends PHPUnit_Framework_TestCase {
 		$params = array('file'=>'vacation.jpg', 'size'=>'original', 'oauth_version'=>'1.0',
 					'oauth_consumer_key'=>'dpf43f3p2l4k3l03', 'oauth_token'=>'nnch734d00sl2jdk',
 					'oauth_timestamp'=>'1191242096', 'oauth_nonce'=>'kllo9940pd9333jh');
-		OAuthTestUtils::build_request('GET', 'http://photos.example.net/photos', $params);
+		self::build_request('GET', 'http://photos.example.net/photos', $params);
 		$request = new Auth_OAuth_RequestImpl();
 		$server = new Auth_OAuth_Store_ServerImpl('key', 'kd94hf93k423kf44');
 		$server->setSignatureMethods( array( 'INVALID-METHOD', 'HMAC-SHA1', 'PLAINTEXT') );
@@ -166,7 +166,7 @@ class SignatureTest extends PHPUnit_Framework_TestCase {
 		$params = array('file'=>'vacation.jpg', 'size'=>'original', 'oauth_version'=>'1.0',
 					'oauth_consumer_key'=>'dpf43f3p2l4k3l03', 'oauth_token'=>'nnch734d00sl2jdk',
 					'oauth_timestamp'=>'1191242096', 'oauth_nonce'=>'kllo9940pd9333jh');
-		OAuthTestUtils::build_request('GET', 'http://photos.example.net/photos', $params);
+		self::build_request('GET', 'http://photos.example.net/photos', $params);
 		$request = new Auth_OAuth_RequestImpl();
 		$server = new Auth_OAuth_Store_ServerImpl('key', 'kd94hf93k423kf44');
 		$server->setSignatureMethods( array('PLAINTEXT', 'HMAC-SHA1') );

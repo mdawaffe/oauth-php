@@ -1,6 +1,6 @@
 <?php
 
-require_once dirname(__FILE__) . '/common.php';
+require_once dirname(__FILE__) . '/TestCase.php';
 require_once 'Auth/OAuth/Util.php';
 
 /**
@@ -8,7 +8,7 @@ require_once 'Auth/OAuth/Util.php';
  *
  * @see http://wiki.oauth.net/TestCases
  */
-class EncodingTest extends PHPUnit_Framework_TestCase {	
+class EncodingTest extends OAuth_TestCase {	
 	public function testParameterEncoding() {
 		$parameters = array(
 			'abcABC123' => 'abcABC123',
