@@ -21,6 +21,18 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 
 	private $realm;
 
+
+	/**
+	 * Construct a new Auth_OAuth_RequestImpl object.  All parameters are optional, and if absent,
+	 * will be populated based on the current HTTP request using the $_SERVER global variable.
+	 *
+	 * @param string $uri URI this request is for
+	 * @param string $method HTTP method used for this request
+	 * @param array $parameters associative array of OAuth parameters for this request
+	 * @param array $headers associative array of request headers.  Headers should be normalized, removing 
+	 *                       any 'HTTP_' prefix and capitalizing only the first letter of each word.
+	 * @param string $body request body
+	 */
 	public function __construct ( $uri = null, $method = null, $parameters = array(), $headers = array(), $body = null )
 	{
 		$uri = self::buildRequestURL($uri);
@@ -60,6 +72,13 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 	}
 
 
+	/**
+	 * Build the request URL.  The provided url is used, and any missing components of the URL or populated
+	 * from the current HTTP request using the $_SERVER global variable.
+	 *
+	 * @param string $url URL used to build request URL
+	 * @return string complete request URL
+	 */
 	private static function buildRequestURL ( $url = null )
 	{
 		if (!empty($url)) {
@@ -309,21 +328,28 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 	 * Parameter values are returned exactly as they appear in the request, and
 	 * have not been urldecoded.
 	 *
+	 * When parsing the Authorization header, if an authorization realm is present,
+	 * it is set on the current object.  Otherwise, this method does not modify the
+	 * current request object in any way.
+	 *
 	 * @return array associative array of request parameters.
 	 */
 	private function getRequestParameters() {
 
 		$parameters = array();
 
+		// start with GET parameters
 		if (!empty($_GET)) {
 			$parameters = array_merge($parameters, $_GET);
 		}
 
+		// allow POST parameters to override
 		if ($this->getMethod() == 'POST'  &&  $this->getRequestContentType() == 'application/x-www-form-urlencoded')
 		{
 			$parameters = array_merge($parameters, $_POST);
 		}
 
+		// allow Authorization header parameters to override
 		if (array_key_exists('Authorization', $this->headers))
 		{
 			$auth_header = trim($this->headers['Authorization']);
