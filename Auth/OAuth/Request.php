@@ -34,7 +34,7 @@ interface Auth_OAuth_Request
 	 * Return the complete parameter string for the signature check.
 	 * All parameters are correctly urlencoded and sorted on name and value.
 	 *
-	 * @return array associative array of parameters
+	 * @return string normalized parameter string
 	 */
 	public function getNormalizedParameterString ();
 
@@ -76,7 +76,7 @@ interface Auth_OAuth_Request
 	/**
 	 * Get the OAuth version of the request.
 	 *
-	 * @param string OAuth version
+	 * @return string OAuth version
 	 */
 	public function getVersion();
 
@@ -84,7 +84,7 @@ interface Auth_OAuth_Request
 	/**
 	 * Get the OAuth consumer key of the request.
 	 *
-	 * @param string OAuth consumer key
+	 * @return string OAuth consumer key
 	 */
 	public function getConsumerKey ();
 
@@ -92,7 +92,7 @@ interface Auth_OAuth_Request
 	/**
 	 * Get the OAuth signature method of the request.
 	 *
-	 * @param string OAuth signature method
+	 * @return string OAuth signature method
 	 */
 	public function getSignatureMethod();
 
@@ -100,7 +100,7 @@ interface Auth_OAuth_Request
 	/**
 	 * Get the OAuth signature of the request.
 	 *
-	 * @param string OAuth signature
+	 * @return string OAuth signature
 	 */
 	public function getSignature();
 
@@ -108,7 +108,7 @@ interface Auth_OAuth_Request
 	/**
 	 * Get the OAuth timestamp of the request.
 	 *
-	 * @param string OAuth timestamp
+	 * @return string OAuth timestamp
 	 */
 	public function getTimestamp();
 
@@ -116,7 +116,7 @@ interface Auth_OAuth_Request
 	/**
 	 * Get the OAuth nonce of the request.
 	 *
-	 * @param string OAuth nonce
+	 * @return string OAuth nonce
 	 */
 	public function getNonce();
 
@@ -124,7 +124,7 @@ interface Auth_OAuth_Request
 	/**
 	 * Get the OAuth token of the request.
 	 *
-	 * @param string OAuth token
+	 * @return string OAuth token
 	 */
 	public function getToken();
 
@@ -132,9 +132,18 @@ interface Auth_OAuth_Request
 	/**
 	 * Get the OAuth callback URL of the request.
 	 *
-	 * @param string OAuth callback URL
+	 * @return string OAuth callback URL
 	 */
 	public function getCallback();
+
+
+	/**
+	 * Get the OAuth authorization realm.  This will only ever be populated if the
+	 * request used an HTTP Authorization header to pass the OAuth parameters.
+	 *
+	 * @return string OAuth authorization realm
+	 */
+	public function getRealm();
 
 }
 

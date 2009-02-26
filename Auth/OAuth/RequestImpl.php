@@ -19,6 +19,7 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 
 	private $parameters;
 
+	private $realm;
 
 	public function __construct ( $uri = null, $method = null, $parameters = array(), $headers = array(), $body = null )
 	{
@@ -84,7 +85,7 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 
 
 	/**
-	 * Return the request method
+	 * Get the request method.
 	 *
 	 * @return string
 	 */
@@ -95,7 +96,7 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 
 
 	/**
-	 * Return the normalised url for signature checks
+	 * Get the normalised url for signature checks.
 	 *
 	 * @return string
 	 */
@@ -115,11 +116,12 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 		return $this->parameters;
 	}
 
+
 	/**
 	 * Return the complete parameter string for the signature check.
 	 * All parameters are correctly urlencoded and sorted on name and value
 	 *
-	 * @return array associative array of parameters
+	 * @return string normalized parameter string
 	 */
 	public function getNormalizedParameterString ()
 	{
@@ -147,11 +149,12 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 		return implode('&', $normalized);
 	}
 
+
 	/**
-	 * Get a parameter. Value is never urlencoded.
+	 * Get a parameter. Return value is NOT url encoded.
 	 *
-	 * @param string	parameter name
-	 * @return string value		false when not found
+	 * @param string $name parameter name
+	 * @return string|boolean parameter value, or false when not found
 	 */
 	public function getParam ( $name )
 	{
@@ -163,7 +166,7 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 
 
 	/**
-	 * Set a parameter.
+	 * Set a parameter.  Value should NOT be url encoded.
 	 *
 	 * @param string	parameter name
 	 * @param string	parameter value
@@ -198,7 +201,7 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 	/**
 	 * Get the OAuth version of the request.
 	 *
-	 * @param string OAuth version
+	 * @return string OAuth version
 	 */
 	public function getVersion()
 	{
@@ -209,7 +212,7 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 	/**
 	 * Get the OAuth consumer key of the request.
 	 *
-	 * @param string OAuth consumer key
+	 * @return string OAuth consumer key
 	 */
 	public function getConsumerKey ()
 	{
@@ -220,7 +223,7 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 	/**
 	 * Get the OAuth signature method of the request.
 	 *
-	 * @param string OAuth signature method
+	 * @return string OAuth signature method
 	 */
 	public function getSignatureMethod()
 	{
@@ -231,7 +234,7 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 	/**
 	 * Get the OAuth signature of the request.
 	 *
-	 * @param string OAuth signature
+	 * @return string OAuth signature
 	 */
 	public function getSignature()
 	{
@@ -242,7 +245,7 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 	/**
 	 * Get the OAuth timestamp of the request.
 	 *
-	 * @param string OAuth timestamp
+	 * @return string OAuth timestamp
 	 */
 	public function getTimestamp()
 	{
@@ -253,7 +256,7 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 	/**
 	 * Get the OAuth nonce of the request.
 	 *
-	 * @param string OAuth nonce
+	 * @return string OAuth nonce
 	 */
 	public function getNonce()
 	{
@@ -264,7 +267,7 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 	/**
 	 * Get the OAuth token of the request.
 	 *
-	 * @param string OAuth token
+	 * @return string OAuth token
 	 */
 	public function getToken()
 	{
@@ -275,11 +278,23 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 	/**
 	 * Get the OAuth callback URL of the request.
 	 *
-	 * @param string OAuth callback URL
+	 * @return string OAuth callback URL
 	 */
 	public function getCallback()
 	{
 		return $this->getParam('oauth_callback');
+	}
+
+
+	/**
+	 * Get the OAuth authorization realm.  This will only ever be populated if the
+	 * request used an HTTP Authorization header to pass the OAuth parameters.
+	 *
+	 * @return string OAuth authorization realm
+	 */
+	public function getRealm()
+	{
+		return $this->realm;
 	}
 
 
@@ -317,6 +332,7 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 			{
 				$auth_parameters = self::splitHeader(substr($auth_header, 6));
 				if (array_key_exists('realm', $auth_parameters)) {
+					$this->realm = $auth_parameters['realm'];
 					unset($auth_parameters['realm']);
 				}
 
@@ -328,6 +344,12 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 	}
 
 
+	/**
+	 * Split the OAuth authorization header into individual key/value pairs.
+	 *
+	 * @param string $header Authorization header value, with the authorization scheme removed
+	 * @return array associative array of authorization header values
+	 */
 	private static function splitHeader($header) {
 		$parameters = array();
 
