@@ -5,6 +5,12 @@ require_once 'Auth/OAuth/Util.php';
 
 class Auth_OAuth_SignatureMethod_HMAC_SHA1 implements Auth_OAuth_SignatureMethod
 {
+
+	/**
+	 * Return the name of this signature method
+	 *
+	 * @return string
+	 */
 	public function name ()
 	{
 		return 'HMAC-SHA1';
@@ -13,12 +19,11 @@ class Auth_OAuth_SignatureMethod_HMAC_SHA1 implements Auth_OAuth_SignatureMethod
 
 	/**
 	 * Calculate the signature using HMAC-SHA1
-	 * This function is copyright Andy Smith, 2007.
 	 *
-	 * @param string base_string
-	 * @param string consumer_secret
-	 * @param string token_secret
-	 * @return string
+	 * @param string base_string data to be signed, usually the base string, can be a request body
+	 * @param string consumer_secret consumer secret used to build signature
+	 * @param string token_secret token secret used to build signature
+	 * @return string calculated signature
 	 */
 	public function signature ( $base_string, $consumer_secret, $token_secret )
 	{
@@ -26,6 +31,15 @@ class Auth_OAuth_SignatureMethod_HMAC_SHA1 implements Auth_OAuth_SignatureMethod
 		return base64_encode($hmac);
 	}
 
+
+	/**
+	 * Build the HMAC, using the PHP hash functions if available.  Otherwise, build it manually.
+	 *
+	 * @param string $base_string string to be hashed
+	 * @param string $consumer_secret consumer secret
+	 * @param string $token_secret token secret
+	 * @return string raw binary HMAC
+	 */
 	private function buildHMAC ( $base_string, $consumer_secret, $token_secret )
 	{
 		$key = Auth_OAuth_Util::encode($consumer_secret) . '&' . Auth_OAuth_Util::encode($token_secret);
@@ -43,6 +57,15 @@ class Auth_OAuth_SignatureMethod_HMAC_SHA1 implements Auth_OAuth_SignatureMethod
 	}
 
 
+	/**
+	 * Build the HMAC manually, when the PHP hash functions are not available.
+	 * This function is copyright Andy Smith, 2007.
+	 *
+	 * @param string $algorithm name of selected hashing algorithm (i.e. "md5", "sha1", etc)
+	 * @param string $base_string string to be hashed
+	 * @param string $key secret key used for generating the HMAC
+	 * @return string raw binary HMAC
+	 */
 	protected function manual_hmac ( $algorithm, $base_string, $key )
 	{
 		$blocksize	= 64;
@@ -68,13 +91,13 @@ class Auth_OAuth_SignatureMethod_HMAC_SHA1 implements Auth_OAuth_SignatureMethod
 
 
 	/**
-	 * Check if the provided signature corresponds to the one calculated for the base_string.
+	 * Check if the provided signature is valid for the base_string and consumer and token secrets.
 	 *
 	 * @param string base_string	data to be signed, usually the base string, can be a request body
-	 * @param string consumer_secret
-	 * @param string token_secret
-	 * @param string signature		(urldecoded) signature
-	 * @return string
+	 * @param string consumer_secret consumer secret used to build signature
+	 * @param string token_secret token secret used to build signature
+	 * @param string signature		(urldecoded) signature to verify
+	 * @return boolean true if signature is valid, false otherwise
 	 */
 	public function verify ( $base_string, $consumer_secret, $token_secret, $signature )
 	{

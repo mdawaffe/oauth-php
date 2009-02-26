@@ -6,6 +6,12 @@ require_once 'Auth/OAuth/Util.php';
 
 class Auth_OAuth_SignatureMethod_PLAINTEXT implements Auth_OAuth_SignatureMethod
 {
+
+	/**
+	 * Return the name of this signature method
+	 *
+	 * @return string
+	 */
 	public function name ()
 	{
 		return 'PLAINTEXT';
@@ -15,10 +21,10 @@ class Auth_OAuth_SignatureMethod_PLAINTEXT implements Auth_OAuth_SignatureMethod
 	/**
 	 * Calculate the signature using PLAINTEXT.
 	 *
-	 * @param string base_string
-	 * @param string consumer_secret
-	 * @param string token_secret
-	 * @return string
+	 * @param string base_string data to be signed, usually the base string, can be a request body
+	 * @param string consumer_secret consumer secret used to build signature
+	 * @param string token_secret token secret used to build signature
+	 * @return string calculated signature
 	 */
 	function signature ( $base_string, $consumer_secret, $token_secret )
 	{
@@ -27,13 +33,13 @@ class Auth_OAuth_SignatureMethod_PLAINTEXT implements Auth_OAuth_SignatureMethod
 
 
 	/**
-	 * Check if the provided signature corresponds to the one calculated for the base_string.
+	 * Check if the provided signature is valid for the base_string and consumer and token secrets.
 	 *
 	 * @param string base_string	data to be signed, usually the base string, can be a request body
-	 * @param string consumer_secret
-	 * @param string token_secret
-	 * @param string signature		(urldecoded) signature
-	 * @return string
+	 * @param string consumer_secret consumer secret used to build signature
+	 * @param string token_secret token secret used to build signature
+	 * @param string signature		(urldecoded) signature to verify
+	 * @return boolean trust if signature is valid, false otherwise
 	 */
 	public function verify ( $base_string, $consumer_secret, $token_secret, $signature )
 	{

@@ -3,31 +3,30 @@
 interface Auth_OAuth_SignatureMethod
 {
 	/**
-	 * Return the name of this signature
+	 * Return the name of this signature method
 	 *
 	 * @return string
 	 */
 	public function name();
 
 	/**
-	 * Return the signature for the given base_string
+	 * Return the signature for the given base_string.
 	 *
-	 * @param Auth_OAuth_Request request
-	 * @param string base_string
-	 * @param string consumer_secret
-	 * @param string token_secret
-	 * @return string
+	 * @param string base_string data to be signed, usually the base string, can be a request body
+	 * @param string consumer_secret consumer secret used to build signature
+	 * @param string token_secret token secret used to build signature
+	 * @return string calculated signature
 	 */
 	public function signature ( $base_string, $consumer_secret, $token_secret );
 
 	/**
-	 * Check if the provided signature corresponds to the one calculated for the base_string.
+	 * Check if the provided signature is valid for the base_string and consumer and token secrets.
 	 *
 	 * @param string base_string	data to be signed, usually the base string, can be a request body
-	 * @param string consumer_secret
-	 * @param string token_secret
-	 * @param string signature		(urldecoded) signature
-	 * @return string
+	 * @param string consumer_secret consumer secret used to build signature
+	 * @param string token_secret token secret used to build signature
+	 * @param string signature		(urldecoded) signature to verify
+	 * @return boolean true if signature is valid, false otherwise
 	 */
 	public function verify ( $base_string, $consumer_secret, $token_secret, $signature );
 }
