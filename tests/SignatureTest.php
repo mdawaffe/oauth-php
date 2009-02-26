@@ -159,10 +159,36 @@ class SignatureTest extends OAuth_TestCase {
 	}
 
 
-	public function testAuthorizationHeader() {
+	/**
+	 * Test parsing the authorization header in a request.
+	 */
+	public function testParsingAuthorizationHeader() {
 		$signer = new Auth_OAuth_Signer();
 
-		// test 1
+		$auth_header = 'OAuth realm="http://photos.example.net/", oauth_version="1.0", oauth_consumer_key="dpf43f3'
+			. 'p2l4k3l03", oauth_token="nnch734d00sl2jdk", oauth_timestamp="1191242096", oauth_nonce="kllo9940pd93'
+			. '33jh", oauth_signature_method="PLAINTEXT", oauth_signature="kd94hf93k423kf44%26pfkkdhi9sl3r4s00"';
+		$params = array('file'=>'vacation.jpg', 'size'=>'original');
+		self::build_request('GET', 'http://photos.example.net/photos', $params, $auth_header);
+		$request = new Auth_OAuth_RequestImpl();
+
+		$this->assertEquals('http://photos.example.net/', $request->getRealm());
+		$this->assertEquals('1.0', $request->getVersion());
+		$this->assertEquals('dpf43f3p2l4k3l03', $request->getConsumerKey());
+		$this->assertEquals('nnch734d00sl2jdk', $request->getToken());
+		$this->assertEquals('1191242096', $request->getTimestamp());
+		$this->assertEquals('kllo9940pd9333jh', $request->getNonce());
+		$this->assertEquals('PLAINTEXT', $request->getSignatureMethod());
+		$this->assertEquals('kd94hf93k423kf44&pfkkdhi9sl3r4s00', $request->getSignature());
+	}
+
+
+	/**
+	 * Test building the authorization for a request.
+	 */
+	public function testBuildingAuthorizationHeader() {
+		$signer = new Auth_OAuth_Signer();
+
 		$params = array('file'=>'vacation.jpg', 'size'=>'original', 'oauth_version'=>'1.0',
 					'oauth_consumer_key'=>'dpf43f3p2l4k3l03', 'oauth_token'=>'nnch734d00sl2jdk',
 					'oauth_timestamp'=>'1191242096', 'oauth_nonce'=>'kllo9940pd9333jh');
@@ -179,6 +205,7 @@ class SignatureTest extends OAuth_TestCase {
 			. '940pd9333jh", oauth_signature_method="PLAINTEXT", oauth_signature="kd94hf93k423k'
 			. 'f44%26pfkkdhi9sl3r4s00"', $signer->getAuthorizationHeader($request));
 	}
+
 }
 
 class HMAC_Test extends Auth_OAuth_SignatureMethod_HMAC_SHA1 {
