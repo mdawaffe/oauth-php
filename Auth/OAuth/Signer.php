@@ -145,7 +145,7 @@ class Auth_OAuth_Signer
 		$header = 'OAuth ';
 
 		$realm = $request->getRealm();
-		if ( !empty($realm) ) 
+		if ( !empty($realm) ) {
 			$header .= 'realm="' . $realm . '", ';
 		}
 
