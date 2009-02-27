@@ -56,14 +56,14 @@ class Auth_OAuth_Server
 	 *
 	 * @param Auth_OAuth_Request $request OAuth request
 	 */
-	public static function authorizeStart ( Auth_OAuth_Request $request ) { }
+	public function authorizeStart ( Auth_OAuth_Request $request = null ) { }
 
 
 	/**
 	 *
 	 * @param Auth_OAuth_Request $request OAuth request
 	 */
-	public static function authorizeFinish ( Auth_OAuth_Request $request ) { }
+	public function authorizeFinish ( Auth_OAuth_Request $request = null ) { }
 
 
 	/**
@@ -71,31 +71,45 @@ class Auth_OAuth_Server
 	 *
 	 * @param Auth_OAuth_Request $request OAuth request
 	 */
-	public static function accessToken ( Auth_OAuth_Request $request )
+	public function accessToken ( Auth_OAuth_Request $request = null )
 	{
-		$this->signer->verify($request, 'request');
+		if ($request == null) {
+			$request = new Auth_OAuth_RequestImpl();
+		}
 
+		$consumer = $this->store->getConsumer($request->getConsumerKey());
+		if ( empty($consumer) ) {
+			error_log('unknown consumer'); return;
+		}
+
+		// ensure token is up to par
 		$request_token = $this->store->getConsumerToken($request->getToken());
-
-		if ($requst->getConsumerKey() != $request_token->getConsumerKey()) {
-			// throw exception or send 401
+		if ($request_token->getType() != 'request') {
+			error_log('Token is not a request token'); return;
 		}
-
 		if (!$request_token->isAuthorized()) {
-			// throw exception or send 401
+			error_log('Token has not been authorized by the user'); return;
 		}
 
-		$this->store->deleteConsumerToken($request->getToken());
+		if ($consumer->getKey() != $request_token->getConsumerKey()) {
+			error_log('token is bad (consumer key does not match)'); return;
+		}
+
+		$valid = $this->signer->verify($request, $consumer, $request_token);
+		if ( !$valid ) {
+			error_log('invalid signature'); return;
+		}
 
 		// exchange for an access token
 		$access_token = $this->store->createConsumerAccessToken($request_token);
+		$this->store->deleteConsumerToken($request->getToken());
 
 		$response = array(
 			'oauth_token' => $access_token->getToken(),
 			'oauth_token_secret' => $access_token->getSecret(),
 		);
 
-		Auth_OAuth_Util::sendResonse($response);
+		Auth_OAuth_Util::sendResponse($response);
 	}
 
 }
