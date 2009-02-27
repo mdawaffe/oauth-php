@@ -136,7 +136,7 @@ class SignatureTest extends OAuth_TestCase {
 		$request = new Auth_OAuth_RequestImpl();
 		$server = new Auth_OAuth_Store_ServerImpl('key', 'kd94hf93k423kf44');
 		$server->setSignatureMethods( array('PLAINTEXT', 'HMAC-SHA1') );
-		$token = new Auth_OAuth_TokenImpl('token', 'pfkkdhi9sl3r4s00');
+		$token = new Auth_OAuth_TokenImpl('token', 'pfkkdhi9sl3r4s00', 'key', 'access');
 
 		$signer->sign($request, $server, $token);
 		$this->assertEquals('PLAINTEXT', $request->getSignatureMethod());
@@ -151,7 +151,7 @@ class SignatureTest extends OAuth_TestCase {
 		$request = new Auth_OAuth_RequestImpl();
 		$server = new Auth_OAuth_Store_ServerImpl('key', 'kd94hf93k423kf44');
 		$server->setSignatureMethods( array( 'INVALID-METHOD', 'HMAC-SHA1', 'PLAINTEXT') );
-		$token = new Auth_OAuth_TokenImpl('token', 'pfkkdhi9sl3r4s00');
+		$token = new Auth_OAuth_TokenImpl('token', 'pfkkdhi9sl3r4s00', 'key', 'access');
 
 		$signer->sign($request, $server, $token);
 		$this->assertEquals('HMAC-SHA1', $request->getSignatureMethod());
@@ -196,7 +196,7 @@ class SignatureTest extends OAuth_TestCase {
 		$request = new Auth_OAuth_RequestImpl();
 		$server = new Auth_OAuth_Store_ServerImpl('key', 'kd94hf93k423kf44');
 		$server->setSignatureMethods( array('PLAINTEXT', 'HMAC-SHA1') );
-		$token = new Auth_OAuth_TokenImpl('token', 'pfkkdhi9sl3r4s00');
+		$token = new Auth_OAuth_TokenImpl('token', 'pfkkdhi9sl3r4s00', 'key', 'access');
 
 		$signer->sign($request, $server, $token);
 

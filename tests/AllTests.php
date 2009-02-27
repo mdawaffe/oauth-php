@@ -2,6 +2,9 @@
 require_once dirname(__FILE__) . '/EncodingTest.php';
 require_once dirname(__FILE__) . '/RequestTest.php';
 require_once dirname(__FILE__) . '/SignatureTest.php';
+require_once dirname(__FILE__) . '/InMemoryStoreTest.php';
+require_once dirname(__FILE__) . '/SQLiteStoreTest.php';
+require_once dirname(__FILE__) . '/ServerTest.php';
  
 class AllTests extends PHPUnit_Framework_TestSuite
 {
@@ -12,6 +15,9 @@ class AllTests extends PHPUnit_Framework_TestSuite
 		$suite->addTestSuite('EncodingTest');
 		$suite->addTestSuite('RequestTest');
 		$suite->addTestSuite('SignatureTest');
+		$suite->addTestSuite('InMemoryStoreTest');
+		$suite->addTestSuite('SQLiteStoreTest');
+		$suite->addTestSuite('ServerTest');
 
 		return $suite;
     }
