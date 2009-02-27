@@ -3,9 +3,9 @@
 require_once dirname(__FILE__) . '/TestCase.php';
 require_once 'Auth/OAuth/Store/SQLite.php';
 
-class SQLStoreTest extends OAuth_TestCase {
+class SQLiteStoreTest extends OAuth_TestCase {
 
-	public function testSQLStore() {
+	public function testSQLiteStore() {
 		$store = new Auth_OAuth_Store_SQLite( tempnam('/tmp', 'oauth_') );
 
 		// get a request token
