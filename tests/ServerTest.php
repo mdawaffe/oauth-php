@@ -1,4 +1,6 @@
 <?php
+// call session_start first thing so it doesn't interfere with PHPUnit
+session_start();
 
 require_once dirname(__FILE__) . '/TestCase.php';
 require_once 'PHPUnit/Extensions/OutputTestCase.php';
@@ -45,6 +47,35 @@ class ServerTest extends PHPUnit_Extensions_OutputTestCase {
 		$this->assertEquals('request', $tokens[0]->getType());
 		$this->assertNull($tokens[0]->getUser());
 		$this->assertFalse($tokens[0]->isAuthorized());
+	}
+
+
+	/**
+	 * Test authorization request for token.
+	 */
+	public function testAuthorizeToken()
+	{
+		$store = new Auth_OAuth_Store_InMemory();
+		$request_token = new Auth_OAuth_TokenImpl('6a5c6460', '59b13abc', 'dpf43f3p2l4k3l03', 'request');
+		$store->updateConsumerToken($request_token);
+
+		$params = array('oauth_token' => $request_token->getToken(), 'oauth_callback' => 'http://example.com/oauth_callback');
+		OAuth_TestCase::build_request('GET', 'https://photos.example.net/authorize_token', $params);
+
+		$server = new Auth_OAuth_Server($store);
+
+		$server->authorizeStart();
+		$server->authorizeFinish(42, true);
+
+		// check tokens
+		$tokens = $store->getConsumerTokens();
+		$this->assertEquals(1, sizeof($tokens));
+		$this->assertEquals($request_token->getToken(), $tokens[0]->getToken());
+		$this->assertEquals($request_token->getSecret(), $tokens[0]->getSecret());
+		$this->assertEquals($request_token->getConsumerKey(), $tokens[0]->getConsumerKey());
+		$this->assertEquals('request', $tokens[0]->getType());
+		$this->assertEquals(42, $tokens[0]->getUser());
+		$this->assertTrue($tokens[0]->isAuthorized());
 	}
 
 

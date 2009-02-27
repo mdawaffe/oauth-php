@@ -32,7 +32,7 @@ class Auth_OAuth_Server
 	/**
 	 * Handle request for a new Request Token.
 	 *
-	 * @param Auth_OAuth_Request $request OAuth request
+	 * @param Auth_OAuth_Request $request OAuth request, if null current HTTP request will be used
 	 */
 	public function requestToken ( Auth_OAuth_Request $request = null )
 	{
@@ -66,23 +66,76 @@ class Auth_OAuth_Server
 
 
 	/**
+	 * Begin the request token authorization process.
+	 *
+	 * Nota bene: this stores the current token, and callback in the $_SESSION
 	 *
 	 * @param Auth_OAuth_Request $request OAuth request
 	 */
-	public function authorizeStart ( Auth_OAuth_Request $request = null ) { }
+	public function authorizeStart ( Auth_OAuth_Request $request = null )
+	{
+		if ($request == null) {
+			$request = new Auth_OAuth_RequestImpl();
+		}
+
+		// ensure token is up to par
+		// TODO: what if a token is not included in the request? OAuth Spec says to prompt user
+		$request_token = $this->store->getConsumerToken($request->getToken());
+		if ($request_token->getType() != 'request') {
+			error_log('Token is not a request token'); return;
+		}
+
+		@session_start();
+		$_SESSION['Auth_OAuth_Token'] = array(
+			'token' => $request->getToken(),
+			'callback' => $request->getCallback(),
+		);
+
+	}
 
 
 	/**
+	 * Complete the request token authorization process.  If the user
+	 * authorized the token, this will update the token accordingly
+	 * and return the user to the OAuth consumer.  If the user did not
+	 * authorize the request token, it will be deleted.
 	 *
-	 * @param Auth_OAuth_Request $request OAuth request
+	 * @param int $user ID of user this token was associated with
+	 * @param boolean $authorized whether or not the user authorized the request token
+	 * @param Auth_OAuth_Request $request OAuth request, if null current HTTP request will be used
 	 */
-	public function authorizeFinish ( Auth_OAuth_Request $request = null ) { }
+	public function authorizeFinish ( $user, $authorized, Auth_OAuth_Request $request = null )
+	{
+		@session_start();
+		if ( empty($_SESSION['Auth_OAuth_Token']) ) {
+			error_log('oauth session data lost'); return;
+		}
+
+		$token = $this->store->getConsumerToken( $_SESSION['Auth_OAuth_Token']['token'] );
+		if ( empty($token) ) {
+			error_log('unknown token'); return;
+		}
+
+		if ($authorized) {
+			$authorized_token = new Auth_OAuth_TokenImpl($token->getToken(), $token->getSecret(), $token->getConsumerKey(), $token->getType(), $user, true);
+			$this->store->updateConsumerToken($authorized_token);
+
+			if ( $callback = $_SESSION['Auth_OAuth_Token']['callback'] ) {
+				$callback = Auth_OAuth_Util::appendCallbackToken($callback, $token->getToken());
+				// TODO redirect to callback
+			} else {
+				// TODO instruct user to return to OAuth consumer site
+			}
+		} else {
+			$this->store->deleteConsumerToken($token->getToken());
+		}
+	}
 
 
 	/**
 	 * Handle request for a new Access Token.
 	 *
-	 * @param Auth_OAuth_Request $request OAuth request
+	 * @param Auth_OAuth_Request $request OAuth request, if null current HTTP request will be used
 	 */
 	public function accessToken ( Auth_OAuth_Request $request = null )
 	{
