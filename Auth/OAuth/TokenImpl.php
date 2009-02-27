@@ -18,10 +18,14 @@ class Auth_OAuth_TokenImpl implements Auth_OAuth_Token
 	private $authorized;
 
 
-	public function __construct( $token, $secret )
+	public function __construct( $token, $secret, $consumer_key, $type, $user = null, $authorized = false )
 	{
 		$this->token = $token;
 		$this->secret = $secret;
+		$this->consumer_key = $consumer_key;
+		$this->type = $type;
+		$this->user = $user;
+		$this->authorized = $authorized;
 	}
 
 	/**

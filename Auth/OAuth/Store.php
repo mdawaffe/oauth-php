@@ -52,7 +52,7 @@ interface Auth_OAuth_Store
 	 * @param int $user ID of user to get tokens for.  If null, tokens for all users will be retrieved.
 	 * @return array of Auth_OAuth_Token objects
 	 */
-	public function getConsumerTokens ( $user );
+	public function getConsumerTokens ( $user = null );
 
 
 	/**
