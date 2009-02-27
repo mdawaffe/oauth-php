@@ -184,19 +184,21 @@ class Auth_OAuth_Signer
 	 * @exception OAuthException thrown when the request did not verify
 	 * @return int user_id associated with token (false when no user associated)
 	 */
-	public function verify ( Auth_OAuth_Request $request, Auth_OAuth_Store_Consumer $consumer, Auth_OAuth_Token $token )
+	public function verify ( Auth_OAuth_Request $request, Auth_OAuth_Store_Consumer $consumer, Auth_OAuth_Token $token = null )
 	{
 		$valid = false;
 
 		$signature_method = $request->getSignatureMethod();
 		$signature_class = $this->getSignatureMethodClass($signature_method);
 
+		$token_secret = ( $token ? $token->getSecret() : '' );
+
 		if ($signature_class) {
 			$valid = call_user_func(
 				array($signature_class, 'verify'),
 				$this->getSignatureBaseString($request),
 				$consumer->getSecret(),
-				$token->getSecret(),
+				$token_secret,
 				$request->getSignature()
 			);
 		}

@@ -6,6 +6,7 @@ require_once 'Auth/OAuth/RequestImpl.php';
 require_once 'Auth/OAuth/Signer.php';
 require_once 'Auth/OAuth/Util.php';
 require_once 'Auth/OAuth/Store.php';
+require_once 'Auth/OAuth/TokenImpl.php';
 
 /**
  * Convenience methods used for handling requests from an OAuth Consumer.
@@ -16,10 +17,17 @@ class Auth_OAuth_Server
 	private $store;
 	private $signer;
 
+
+	/**
+	 * Constructor for OAuth Server.
+	 *
+	 * @param Auth_OAuth_Store $store OAuth store implementation
+	 */
 	public function __construct($store) {
 		$this->store = $store;
 		$this->signer = new Auth_OAuth_Signer();
 	}
+
 
 	/**
 	 * Handle request for a new Request Token.
@@ -33,15 +41,20 @@ class Auth_OAuth_Server
 		}
 
 		$consumer = $this->store->getConsumer($request->getConsumerKey());
-		if ( empty($consumer) ) { error_log('unknown consumer'); return;  }
+		if ( empty($consumer) ) {
+			error_log('unknown consumer'); return;
+		}
 
-		$null_token = new Auth_OAuth_TokenImpl(null, null, null, null);
-
-		$valid = $this->signer->verify($request, $consumer, $null_token);
-		if ( !$valid ) { error_log('invalid signature'); return; }
+		$valid = $this->signer->verify($request, $consumer);
+		if ( !$valid ) {
+			error_log('invalid signature'); return;
+		}
 
 		// create a request token
-		$token = $this->store->createConsumerRequestToken($request->getConsumerKey());
+		$token_key = Auth_OAuth_Util::generateKey();
+		$token_secret = Auth_OAuth_Util::generateKey();
+		$token = new Auth_OAuth_TokenImpl($token_key, $token_secret, $consumer->getKey(), 'request');
+		$this->store->updateConsumerToken($token);
 
 		$response = array(
 			'oauth_token' => $token->getToken(),
@@ -100,9 +113,14 @@ class Auth_OAuth_Server
 			error_log('invalid signature'); return;
 		}
 
-		// exchange for an access token
-		$access_token = $this->store->createConsumerAccessToken($request_token);
-		$this->store->deleteConsumerToken($request->getToken());
+		// create an access token
+		$token_key = Auth_OAuth_Util::generateKey();
+		$token_secret = Auth_OAuth_Util::generateKey();
+		$access_token = new Auth_OAuth_TokenImpl($token_key, $token_secret, $consumer->getKey(), 'access', $request_token->getUser());
+		$this->store->updateConsumerToken($access_token);
+
+		// delete old request token
+		$this->store->deleteConsumerToken($request_token->getToken());
 
 		$response = array(
 			'oauth_token' => $access_token->getToken(),

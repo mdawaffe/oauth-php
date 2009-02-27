@@ -47,17 +47,18 @@ class ServerTest extends PHPUnit_Extensions_OutputTestCase {
 		$this->assertFalse($tokens[0]->isAuthorized());
 	}
 
+
 	/**
 	 * Test request for an access token.
 	 */
 	public function testAccessToken() {
 		$store = new Auth_OAuth_Store_InMemory();
 
-		$request_token = $store->createConsumerRequestToken('dpf43f3p2l4k3l03');
-		$store->authorizeConsumerRequestToken($request_token->getToken(), 42);
-
 		$consumer = new Auth_OAuth_Store_ConsumerImpl('dpf43f3p2l4k3l03', 'kd94hf93k423kf44');
 		$store->updateConsumer($consumer);
+
+		$request_token = new Auth_OAuth_TokenImpl('6a5c6460', '59b13abc', $consumer->getKey(), 'request', 42, true);
+		$store->updateConsumerToken($request_token);
 
 		$params = array(
 			'oauth_version'=>'1.0',
