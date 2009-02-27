@@ -27,56 +27,43 @@ abstract class OAuth_StoreTestCase extends OAuth_TestCase {
 	 */
 	public function testConsumerTokens() {
 
-		// get a request token
-		$request_token = $this->store->createConsumerRequestToken('6dc71f6');
+		// add a token
+		$request_token = new Auth_OAuth_TokenImpl('0f75d402', '6548e524', '871e8e03', 'request');
+		$this->store->updateConsumerToken($request_token);
 
-		$this->assertNotNull($request_token);
-		$this->assertNotNull($request_token->getToken());
-		$this->assertNotNull($request_token->getSecret());
-		$this->assertEquals('6dc71f6', $request_token->getConsumerKey());
-		$this->assertEquals('request', $request_token->getType());
-		$this->assertNull($request_token->getUser());
-		$this->assertFalse($request_token->isAuthorized());
-
-
-		// authorize the request token
-		$auth_token = $this->store->authorizeConsumerRequestToken($request_token->getToken(), 42);
-
-		$this->assertNotNull($auth_token);
-		$this->assertEquals($request_token->getToken(), $auth_token->getToken());
-		$this->assertEquals($request_token->getSecret(), $auth_token->getSecret());
-		$this->assertEquals('6dc71f6', $auth_token->getConsumerKey());
-		$this->assertEquals('request', $auth_token->getType());
-		$this->assertEquals(42, $auth_token->getUser());
-		$this->assertTrue($auth_token->isAuthorized());
-
-
-		// exchange for access token
-		$access_token = $this->store->createConsumerAccessToken($auth_token);
-
-		$this->assertNotNull($access_token);
-		$this->assertNotNull($access_token->getToken());
-		$this->assertNotEquals($request_token->getToken(), $access_token->getToken());
-		$this->assertNotNull($access_token->getSecret());
-		$this->assertNotEquals($request_token->getSecret(), $access_token->getSecret());
-		$this->assertEquals('6dc71f6', $access_token->getConsumerKey());
-		$this->assertEquals('access', $access_token->getType());
-		$this->assertEquals(42, $access_token->getUser());
-
-
-		// should have two tokens total
-		$tokens = $this->store->getConsumerTokens();
-		$this->assertEquals(2, sizeof($tokens));
-		$this->assertTrue(in_array($auth_token, $tokens));
-		$this->assertTrue(in_array($access_token, $tokens));
-
-
-		// delete request token, and ensure only the access token is left
-		$this->store->deleteConsumerToken($request_token->getToken());
+		$fetched_token = $this->store->getConsumerToken($request_token->getToken());
+		$this->assertEquals($request_token, $fetched_token);
 
 		$tokens = $this->store->getConsumerTokens();
 		$this->assertEquals(1, sizeof($tokens));
-		$this->assertEquals($access_token, $tokens[0]);
+		$this->assertEquals($request_token, $tokens[0]);
+
+		// update the token
+		$request_token = new Auth_OAuth_TokenImpl('0f75d402', '6548e524', '871e8e03', 'request', 42, true);
+		$this->store->updateConsumerToken($request_token);
+
+		$tokens = $this->store->getConsumerTokens();
+		$this->assertEquals(1, sizeof($tokens));
+		$this->assertEquals($request_token, $tokens[0]);
+
+		// add another token or two, and fetch tokens for specific user
+		$access_token_1 = new Auth_OAuth_TokenImpl('8e0e6cd5', '6548e524', '871e8e03', 'access', 99);
+		$this->store->updateConsumerToken($access_token_1);
+		$access_token_2 = new Auth_OAuth_TokenImpl('6a5c6460', '6548e524', '871e8e03', 'access', 99);
+		$this->store->updateConsumerToken($access_token_2);
+
+		$user_tokens = $this->store->getConsumerTokens(99);
+		$this->assertEquals(2, sizeof($user_tokens));
+		$this->assertTrue(in_array($access_token_1, $user_tokens));
+		$this->assertTrue(in_array($access_token_2, $user_tokens));
+
+		// delete a token
+		$this->store->deleteConsumerToken($access_token_2->getToken());
+
+		$tokens = $this->store->getConsumerTokens();
+		$this->assertEquals(2, sizeof($tokens));
+		$this->assertTrue(in_array($request_token, $tokens));
+		$this->assertTrue(in_array($access_token_1, $tokens));
 	}
 
 
@@ -85,25 +72,36 @@ abstract class OAuth_StoreTestCase extends OAuth_TestCase {
 	 * of server tokens.
 	 */
 	public function testServerTokens() {
-		$request_token = new Auth_OAuth_TokenImpl('937d73', '1a6501', '6dc71f6', 'request', 42);
-		$access_token = new Auth_OAuth_TokenImpl('bcf425', 'aed227', '6dc71f6', 'request', 99);
 
-		$this->store->addServerToken($request_token);
-		$this->store->addServerToken($access_token);
+		// add a token
+		$request_token = new Auth_OAuth_TokenImpl('0f75d402', '6548e524', '871e8e03', 'request');
+		$this->store->updateServerToken($request_token);
+
+		$fetched_token = $this->store->getServerToken($request_token->getToken());
+		$this->assertEquals($request_token, $fetched_token);
+
+		$tokens = $this->store->getServerTokens();
+		$this->assertEquals(1, sizeof($tokens));
+		$this->assertEquals($request_token, $tokens[0]);
+
+		// add another token or two, and fetch tokens for specific user
+		$access_token_1 = new Auth_OAuth_TokenImpl('8e0e6cd5', '6548e524', '871e8e03', 'access', 99);
+		$this->store->updateServerToken($access_token_1);
+		$access_token_2 = new Auth_OAuth_TokenImpl('6a5c6460', '6548e524', '871e8e03', 'access', 99);
+		$this->store->updateServerToken($access_token_2);
+
+		$user_tokens = $this->store->getServerTokens(99);
+		$this->assertEquals(2, sizeof($user_tokens));
+		$this->assertTrue(in_array($access_token_1, $user_tokens));
+		$this->assertTrue(in_array($access_token_2, $user_tokens));
+
+		// delete a token
+		$this->store->deleteServerToken($access_token_2->getToken());
 
 		$tokens = $this->store->getServerTokens();
 		$this->assertEquals(2, sizeof($tokens));
 		$this->assertTrue(in_array($request_token, $tokens));
-		$this->assertTrue(in_array($access_token, $tokens));
-
-		$user_tokens = $this->store->getServerTokens(42);
-		$this->assertEquals(1, sizeof($user_tokens));
-
-		// delete token
-		$this->store->deleteServerToken($request_token->getToken());
-		$tokens = $this->store->getServerTokens();
-		$this->assertEquals(1, sizeof($tokens));
-		$this->assertEquals($access_token, $tokens[0]);
+		$this->assertTrue(in_array($access_token_1, $tokens));
 	}
 }
 

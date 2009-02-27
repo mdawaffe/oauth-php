@@ -129,64 +129,16 @@ class Auth_OAuth_Store_SQLite implements Auth_OAuth_Store
 
 
 	/**
-	 * Create a new token for the specified consumer.
+	 * Update an OAuth Consumer Token.  If a token does not already exist with the 
+	 * token value, a new one will be added.
 	 *
-	 * @param string $consumer_key key of OAuth consumer to create token for
-	 * @return Auth_OAuth_Token
+	 * @param Auth_OAuth_Token $token consumer token to add or update
 	 */
-	public function createConsumerRequestToken ( $consumer_key ) 
+	public function updateConsumerToken ( Auth_OAuth_Token $token )
 	{
-		$token = Auth_OAuth_Util::generateKey();
-		$secret = Auth_OAuth_Util::generateKey();
-
-		$sql = sprintf('INSERT INTO consumer_tokens (consumer_key, token, secret, type) VALUES ("%s", "%s", "%s", "%s");', 
-			$consumer_key, $token, $secret, 'request');
+		$sql = sprintf('REPLACE INTO consumer_tokens (consumer_key, token, secret, type, user, authorized) VALUES ("%s", "%s", "%s", "%s", "%s", "%s");', 
+			$token->getConsumerKey(), $token->getToken(), $token->getSecret(), $token->getType(), $token->getUser(), $token->isAuthorized());
 		$this->sqlite->queryExec($sql);
-
-		return $this->getConsumerToken($token);
-	}
-
-
-	/**
-	 * Authorize a consumer request token.
-	 *
-	 * @param string $token_key key of request token to authorize
-	 * @param int $user ID of user to authorize token for
-	 * @return Auth_OAuth_Token
-	 */
-	public function authorizeConsumerRequestToken ( $token_key, $user ) 
-	{
-		$sql = sprintf('UPDATE consumer_tokens SET authorized="1", user="%s" WHERE token="%s";', $user, $token_key);
-		$result = $this->sqlite->queryExec($sql);
-
-		if ($result === false ) {
-			error_log('problem authorizing token');
-		}
-
-		return $this->getConsumerToken($token_key);
-	}
-
-
-	/**
-	 * Create a consumer access token based on the provided request token.  The 
-	 * OAuth store does not need to worry with checking that the request token 
-	 * has been authorized, that should have already been done by the caller of 
-	 * this method.  Nor does the store need to worry with deleting the request 
-	 * token.
-	 *
-	 * @param Auth_OAuth_Token $request_token request token being exchanged
-	 * @return Auth_OAuth_Token access token
-	 */
-	public function createConsumerAccessToken ( Auth_OAuth_Token $request_token ) 
-	{
-		$token = Auth_OAuth_Util::generateKey();
-		$secret = Auth_OAuth_Util::generateKey();
-
-		$sql = sprintf('INSERT INTO consumer_tokens (consumer_key, token, secret, type, user) VALUES ("%s", "%s", "%s", "%s", "%s");', 
-			$request_token->getConsumerKey(), $token, $secret, 'access', $request_token->getUser());
-		$this->sqlite->queryExec($sql);
-
-		return $this->getConsumerToken($token);
 	}
 
 
@@ -271,7 +223,7 @@ class Auth_OAuth_Store_SQLite implements Auth_OAuth_Store
 
 		$data = $result->fetch();
 		return new Auth_OAuth_TokenImpl($data['token'], $data['secret'], $data['consumer_key'], 
-				$data['type'], $data['user'], (bool) $data['authorized']);
+				$data['type'], $data['user']);
 	}
 
 
@@ -293,7 +245,7 @@ class Auth_OAuth_Store_SQLite implements Auth_OAuth_Store
 		while ($result->valid()) {
 			$data = $result->fetch();
 			$tokens[] = new Auth_OAuth_TokenImpl($data['token'], $data['secret'], $data['consumer_key'], 
-				$data['type'], $data['user'], (bool) $data['authorized']);
+				$data['type'], $data['user']);
 		}
 
 		return $tokens;
@@ -301,13 +253,14 @@ class Auth_OAuth_Store_SQLite implements Auth_OAuth_Store
 
 
 	/**
-	 * Add a new server token.
+	 * Update an OAuth Server Token.  If a token does not already exist with the 
+	 * token value, a new one will be added.
 	 *
-	 * @param Auth_OAuth_Token $token server token to add
+	 * @param Auth_OAuth_Token $token server token to add or update
 	 */
-	public function addServerToken ( Auth_OAuth_Token $token ) 
+	public function updateServerToken ( Auth_OAuth_Token $token ) 
 	{
-		$sql = sprintf('INSERT INTO server_tokens (consumer_key, token, secret, type, user) VALUES ("%s", "%s", "%s", "%s", "%s");', 
+		$sql = sprintf('REPLACE INTO server_tokens (consumer_key, token, secret, type, user) VALUES ("%s", "%s", "%s", "%s", "%s");', 
 			$token->getConsumerKey(), $token->getToken(), $token->getSecret(), $token->getType(), $token->getUser());
 		$this->sqlite->queryExec($sql);
 	}
@@ -359,8 +312,7 @@ class Auth_OAuth_Store_SQLite implements Auth_OAuth_Store
 			token TEXT UNIQUE,
 			secret TEXT,
 			type TEXT,
-			user INTEGER,
-			authorized INTEGER
+			user INTEGER
 		);
 EOT;
 

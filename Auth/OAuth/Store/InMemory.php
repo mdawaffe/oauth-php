@@ -130,54 +130,14 @@ class Auth_OAuth_Store_InMemory implements Auth_OAuth_Store
 
 
 	/**
-	 * Create a new token for the specified consumer.
+	 * Update an OAuth Consumer Token.  If a token does not already exist with the 
+	 * token value, a new one will be added.
 	 *
-	 * @param string $consumer_key key of OAuth consumer to create token for
-	 * @return Auth_OAuth_Token
+	 * @param Auth_OAuth_Token $token consumer token to add or update
 	 */
-	public function createConsumerRequestToken ( $consumer_key ) 
+	public function updateConsumerToken ( Auth_OAuth_Token $token )
 	{
-		$token = Auth_OAuth_Util::generateKey();
-		$secret = Auth_OAuth_Util::generateKey();
-
-		$this->consumer_tokens[$token] = new Auth_OAuth_TokenImpl($token, $secret, $consumer_key, 'request');
-		return $this->getConsumerToken($token);
-	}
-
-
-	/**
-	 * Authorize a consumer request token.
-	 *
-	 * @param string $token_key key of request token to authorize
-	 * @param int $user ID of user to authorize token for
-	 * @return Auth_OAuth_Token
-	 */
-	public function authorizeConsumerRequestToken ( $token_key, $user ) 
-	{
-		$t = $this->getConsumerToken($token_key);
-		$this->consumer_tokens[$token_key] = new Auth_OAuth_TokenImpl($token_key, $t->getSecret(), $t->getConsumerKey(), $t->getType(), $user, true);
-
-		return $this->getConsumerToken($token_key);
-	}
-
-
-	/**
-	 * Create a consumer access token based on the provided request token.  The 
-	 * OAuth store does not need to worry with checking that the request token 
-	 * has been authorized, that should have already been done by the caller of 
-	 * this method.  Nor does the store need to worry with deleting the request 
-	 * token.
-	 *
-	 * @param Auth_OAuth_Token $request_token request token being exchanged
-	 * @return Auth_OAuth_Token access token
-	 */
-	public function createConsumerAccessToken ( Auth_OAuth_Token $request_token ) 
-	{
-		$token = Auth_OAuth_Util::generateKey();
-		$secret = Auth_OAuth_Util::generateKey();
-
-		$this->consumer_tokens[$token] = new Auth_OAuth_TokenImpl($token, $secret, $request_token->getConsumerKey(), 'access', $request_token->getUser());
-		return $this->getConsumerToken($token);
+		$this->consumer_tokens[$token->getToken()] = $token;
 	}
 
 
@@ -268,11 +228,12 @@ class Auth_OAuth_Store_InMemory implements Auth_OAuth_Store
 
 
 	/**
-	 * Add a new server token.
+	 * Update an OAuth Server Token.  If a token does not already exist with the 
+	 * token value, a new one will be added.
 	 *
-	 * @param Auth_OAuth_Token $token server token to add
+	 * @param Auth_OAuth_Token $token server token to add or update
 	 */
-	public function addServerToken ( Auth_OAuth_Token $token ) 
+	public function updateServerToken ( Auth_OAuth_Token $token )
 	{
 		$this->server_tokens[$token->getToken()] = $token;
 	}
