@@ -156,7 +156,7 @@ class Auth_OAuth_Util
      * @param boolean unique    force the key to be unique
      * @return string
      */
-    public function generateKey ( $unique = false )
+    public static function generateKey ( $unique = false )
     {
         $key = md5(uniqid(rand(), true));
         if ($unique)
@@ -166,6 +166,32 @@ class Auth_OAuth_Util
         }
         return $key;
     }
+
+
+	/**
+	 * Append the oauth_token value to the given callback, respecting any 
+	 * existing query_string or URL fragment.
+	 *
+	 * @param string $callback callback URL
+	 * @param string $token OAuth token value
+	 * @return string updated callback URL
+	 */
+	public static function appendCallbackToken ( $callback, $token )
+	{
+		$parts = parse_url($callback);
+
+		if ( !empty($parts['fragment']) ) {
+			$callback = preg_replace('/' . preg_quote('#' . $parts['fragment']) . '$/', '', $callback);
+		}
+
+		$callback .= ( empty($parts['query']) ? '?' : '&' ) . 'oauth_token=' . self::encode($token);
+
+		if ( !empty($parts['fragment']) ) {
+			$callback .= '#' . $parts['fragment'];
+		}
+
+		return $callback;
+	}
 
 }
 

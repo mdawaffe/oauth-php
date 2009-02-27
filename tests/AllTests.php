@@ -1,5 +1,5 @@
 <?php
-require_once dirname(__FILE__) . '/EncodingTest.php';
+require_once dirname(__FILE__) . '/UtilTest.php';
 require_once dirname(__FILE__) . '/RequestTest.php';
 require_once dirname(__FILE__) . '/SignatureTest.php';
 require_once dirname(__FILE__) . '/InMemoryStoreTest.php';
@@ -12,7 +12,7 @@ class AllTests extends PHPUnit_Framework_TestSuite
     {
         $suite = new AllTests('OAuth');
 
-		$suite->addTestSuite('EncodingTest');
+		$suite->addTestSuite('UtilTest');
 		$suite->addTestSuite('RequestTest');
 		$suite->addTestSuite('SignatureTest');
 		$suite->addTestSuite('InMemoryStoreTest');
