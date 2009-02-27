@@ -78,7 +78,7 @@ class Auth_OAuth_Store_InMemory implements Auth_OAuth_Store
 	 */
 	public function updateConsumer ( Auth_OAuth_Store_Consumer $consumer ) 
 	{
-		$this->consumers[$consumer->getConsumerKey()] = $consumer;
+		$this->consumers[$consumer->getKey()] = $consumer;
 	}
 
 
@@ -216,7 +216,7 @@ class Auth_OAuth_Store_InMemory implements Auth_OAuth_Store
 	 */
 	public function updateServer ( Auth_OAuth_Store_Server $server ) 
 	{
-		$this->servers[$consumer->getConsumerKey()] = $server;
+		$this->servers[$consumer->getKey()] = $server;
 	}
 
 
