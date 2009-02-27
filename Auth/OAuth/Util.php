@@ -128,19 +128,26 @@ class Auth_OAuth_Util
 
 	public static function sendResponse( $parameters )
 	{
-		$response = '';
+		$response_parameters = array();
 
 		foreach ($parameters as $name => $value)
 		{
-			$parameters[$name] = $name . '=' . self::encode($value);
+			$response_parameters[] = self::encode($name) . '=' . self::encode($value);
 		}
 
-		header('HTTP/1.1 200 OK');
-		header('Content-Length: ' . strlen($result));
-		header('Content-Type: application/x-www-form-urlencoded');
+		$response = implode('&', $response_parameters);
 
-		echo $result;
-		exit;
+		if ( !headers_sent() ) {
+			header('HTTP/1.1 200 OK');
+			header('Content-Length: ' . strlen($response));
+			header('Content-Type: application/x-www-form-urlencoded');
+		}
+
+		echo $response;
+
+		if (!defined('Auth_OAuth_TESTING') || !Auth_OAuth_TESTING) {
+			exit;
+		}
 	}
 
     /**

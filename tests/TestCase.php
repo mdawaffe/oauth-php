@@ -30,7 +30,7 @@ abstract class OAuth_TestCase extends PHPUnit_Framework_TestCase {
 	 * @param array $params What params should go with the request
 	 * @param string $auth_header What to set the Authorization header to
 	 */
-	protected static function build_request( $method, $uri, $params, $auth_header = '' ) {
+	public static function build_request( $method, $uri, $params, $auth_header = '' ) {
 		self::reset_request_vars();
 
 		$method = strtoupper($method);
