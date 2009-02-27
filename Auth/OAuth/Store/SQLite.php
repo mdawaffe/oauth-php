@@ -12,17 +12,24 @@ require_once 'Auth/OAuth/TokenImpl.php';
 */
 class Auth_OAuth_Store_SQLite implements Auth_OAuth_Store
 {
-	
+
+	/**
+	 * SQLite database object
+	 *
+	 * @var SQLiteDatabase
+	 */
 	private $sqlite;
+
 
 	/**
 	 * Constructor.
 	 *
 	 * @param string $db filename of the SQLite database
+	 * @param int $umask umask to set on SQLite database file
 	 */
-	public function __construct($file)
+	public function __construct($file, $umask = 0666)
 	{
-		$this->sqlite = sqlite_factory($file, 0666, $error);
+		$this->sqlite = sqlite_factory($file, $umask, $error);
 
 		if (!$this->sqlite) {
 			error_log($error);
@@ -31,6 +38,7 @@ class Auth_OAuth_Store_SQLite implements Auth_OAuth_Store
 
 		$this->build_tables();
 	}
+
 
 	/**
 	 * Get an OAuth Consumer.
