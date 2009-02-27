@@ -136,7 +136,7 @@ interface Auth_OAuth_Store
 	 * @param int $user ID of user to get tokens for.  If null, tokens for all users will be retrieved.
 	 * @return array of Auth_OAuth_Token objects
 	 */
-	public function getServerTokens ( $user );
+	public function getServerTokens ( $user = null );
 
 
 	/**

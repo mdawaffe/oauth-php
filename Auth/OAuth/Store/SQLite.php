@@ -29,8 +29,6 @@ class Auth_OAuth_Store_SQLite implements Auth_OAuth_Store
 			return;
 		}
 
-		//echo sqlite_libversion();
-
 		$this->build_tables();
 	}
 
@@ -61,7 +59,7 @@ class Auth_OAuth_Store_SQLite implements Auth_OAuth_Store
 	 */
 	public function updateConsumer ( Auth_OAuth_Store_Consumer $consumer ) 
 	{
-		$sql = sprintf('REPLACE INTO consumers (key, secret) VALUES ("%s", "%s");', $consumer['key'], $consumer['secret']);
+		$sql = sprintf('REPLACE INTO consumers (key, secret) VALUES ("%s", "%s");', $consumer->getKey(), $consumer->getSecret());
 		return $this->sqlite->queryExec($sql);
 	}
 
@@ -201,7 +199,24 @@ class Auth_OAuth_Store_SQLite implements Auth_OAuth_Store
 	 * @param string $consumer_key consumer key of server to get
 	 * @return Auth_OAuth_Store_Server
 	 */
-	public function getServer ( $consumer_key ) { }
+	public function getServer ( $consumer_key ) 
+	{
+		$result = $this->sqlite->query('SELECT * FROM servers WHERE key="' . $consumer_key . '"');
+
+		if (!$result->valid()) {
+			return false;
+		}
+
+		$data = $result->fetch();
+
+		$server = new Auth_OAuth_Store_ServerImpl($data['key'], $data['secret']);
+		$server->setRequestTokenURI($data['request_url']);
+		$server->setAuthorizeURI($data['authorize_url']);
+		$server->setAccessTokenURI($data['access_url']);
+		$server->setSignatureMethods(explode(';', $data['signature_methods']));
+
+		return $server;
+	}
 
 
 	/**
@@ -210,7 +225,15 @@ class Auth_OAuth_Store_SQLite implements Auth_OAuth_Store
 	 *
 	 * @param Auth_OAuth_Store_Server $server server to update
 	 */
-	public function updateServer ( Auth_OAuth_Store_Server $server ) { }
+	public function updateServer ( Auth_OAuth_Store_Server $server ) 
+	{
+		$sql = sprintf(
+			'REPLACE INTO servers (key, secret, request_url, authorize_url, access_url, signature_methods) VALUES ("%s", "%s", "%s", "%s", "%s", "%s");', 
+			$server->getKey(), $server->getSecret(), $server->getRequestTokenURI(), $server->getAuthorizeURI(), $server->getAccessTokenURI(), 
+			implode(';', $server->getSignatureMethods())
+		);
+		return $this->sqlite->queryExec($sql);
+	}
 
 
 	/**
@@ -218,7 +241,10 @@ class Auth_OAuth_Store_SQLite implements Auth_OAuth_Store
 	 *
 	 * @param string $consumer_key consumer key to delete
 	 */
-	public function deleteServer ( $consumer_key ) { }
+	public function deleteServer ( $consumer_key ) 
+	{
+		return $this->sqlite->queryExec('DELETE FROM servers WHERE key="' . $consumer_key . '"');
+	}
 
 
 	/**
@@ -227,7 +253,18 @@ class Auth_OAuth_Store_SQLite implements Auth_OAuth_Store
 	 * @param string $token_key token to get
 	 * @return Auth_OAuth_Token
 	 */
-	public function getServerToken ( $token_key ) { }
+	public function getServerToken ( $token_key ) 
+	{
+		$result = $this->sqlite->query('SELECT * FROM server_tokens WHERE token="' . $token_key . '"');
+
+		if (!$result->valid()) {
+			return false;
+		}
+
+		$data = $result->fetch();
+		return new Auth_OAuth_TokenImpl($data['token'], $data['secret'], $data['consumer_key'], 
+				$data['type'], $data['user'], (bool) $data['authorized']);
+	}
 
 
 	/**
@@ -236,7 +273,23 @@ class Auth_OAuth_Store_SQLite implements Auth_OAuth_Store
 	 * @param int $user ID of user to get tokens for.  If null, tokens for all users will be retrieved.
 	 * @return array of Auth_OAuth_Token objects
 	 */
-	public function getServerTokens ( $user ) { }
+	public function getServerTokens ( $user = null ) 
+	{
+		$tokens = array();
+
+		$sql = 'SELECT * FROM server_tokens';
+		if ($user) $sql .= ' WHERE user="' . $user . '"';
+
+		$result = $this->sqlite->query($sql);
+
+		while ($result->valid()) {
+			$data = $result->fetch();
+			$tokens[] = new Auth_OAuth_TokenImpl($data['token'], $data['secret'], $data['consumer_key'], 
+				$data['type'], $data['user'], (bool) $data['authorized']);
+		}
+
+		return $tokens;
+	}
 
 
 	/**
@@ -244,7 +297,12 @@ class Auth_OAuth_Store_SQLite implements Auth_OAuth_Store
 	 *
 	 * @param Auth_OAuth_Token $token server token to add
 	 */
-	public function addServerToken ( Auth_OAuth_Token $token ) { }
+	public function addServerToken ( Auth_OAuth_Token $token ) 
+	{
+		$sql = sprintf('INSERT INTO server_tokens (consumer_key, token, secret, type, user) VALUES ("%s", "%s", "%s", "%s", "%s");', 
+			$token->getConsumerKey(), $token->getToken(), $token->getSecret(), $token->getType(), $token->getUser());
+		$this->sqlite->queryExec($sql);
+	}
 
 
 	/**
@@ -252,7 +310,10 @@ class Auth_OAuth_Store_SQLite implements Auth_OAuth_Store
 	 *
 	 * @param string $token_key token to be deleted
 	 */
-	public function deleteServerToken ( $token_key ) { }
+	public function deleteServerToken ( $token_key ) 
+	{
+		return $this->sqlite->queryExec('DELETE FROM server_tokens WHERE token="' . $token_key . '"');
+	}
 
 
 	private function build_tables()
