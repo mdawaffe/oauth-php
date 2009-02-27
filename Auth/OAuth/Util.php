@@ -143,6 +143,23 @@ class Auth_OAuth_Util
 		exit;
 	}
 
+    /**
+     * Generate a unique key
+     *
+     * @param boolean unique    force the key to be unique
+     * @return string
+     */
+    public function generateKey ( $unique = false )
+    {
+        $key = md5(uniqid(rand(), true));
+        if ($unique)
+        {
+            list($usec,$sec) = explode(' ',microtime());
+            $key .= dechex($usec).dechex($sec);
+        }
+        return $key;
+    }
+
 }
 
 ?>
