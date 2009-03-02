@@ -103,7 +103,7 @@ class Auth_OAuth_Server
 	 * If an OAuth callback URL was specified in the request, the user will be
 	 * automatically redirected there.  If a callback URL was not specified,
 	 * this function will return a boolean indicating whether the request was
-	 * authorized.  The application using this library should then prompt the
+	 * authorized.  The application using this library should then instruct the
 	 * user on how to proceed manually (ie. "close this window" or "return to
 	 * consumer application").
 	 *
