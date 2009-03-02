@@ -100,9 +100,19 @@ class Auth_OAuth_Server
 	 * and return the user to the OAuth consumer.  If the user did not
 	 * authorize the request token, it will be deleted.
 	 *
+	 * If an OAuth callback URL was specified in the request, the user will be
+	 * automatically redirected there.  If a callback URL was not specified,
+	 * this function will return a boolean indicating whether the request was
+	 * authorized.  The application using this library should then prompt the
+	 * user on how to proceed manually (ie. "close this window" or "return to
+	 * consumer application").
+	 *
 	 * @param int $user ID of user this token was associated with
 	 * @param boolean $authorized whether or not the user authorized the request token
 	 * @param Auth_OAuth_Request $request OAuth request, if null current HTTP request will be used
+	 * @return boolean whether or not the request was authorized.  If an OAuth
+	 * 		callback URL was included in the request, the user will be redirected
+	 * 		and this function will not return.
 	 */
 	public function authorizeFinish ( $user, $authorized, Auth_OAuth_Request $request = null )
 	{
@@ -122,12 +132,12 @@ class Auth_OAuth_Server
 
 			if ( $callback = $_SESSION['Auth_OAuth_Token']['callback'] ) {
 				Auth_OAuth_Util::redirect($callback, array('oauth_token' => $token->getToken()));
-			} else {
-				// TODO instruct user to return to OAuth consumer site
 			}
 		} else {
 			$this->store->deleteConsumerToken($token->getToken());
 		}
+
+		return $authorized;
 	}
 
 
