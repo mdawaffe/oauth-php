@@ -36,27 +36,27 @@ class UtilTest extends OAuth_TestCase {
 	}
 
 	/**
-	 * Test appendCallbackToken().
+	 * Test appendQuery().
 	 */
-	public function testCallback() {
+	public function testAppendQuery() {
 		$this->assertEquals(
 			'http://example.com/?oauth_token=6a5c6460', 
-			Auth_OAuth_Util::appendCallbackToken('http://example.com/', '6a5c6460')
+			Auth_OAuth_Util::appendQuery('http://example.com/', array('oauth_token' => '6a5c6460'))
 		);
 
 		$this->assertEquals(
 			'http://example.com/?oauth_token=6a5c6460#complete', 
-			Auth_OAuth_Util::appendCallbackToken('http://example.com/#complete', '6a5c6460')
+			Auth_OAuth_Util::appendQuery('http://example.com/#complete', array('oauth_token' => '6a5c6460'))
 		);
 
 		$this->assertEquals(
 			'http://example.com/?foo=bar&oauth_token=6a5c6460', 
-			Auth_OAuth_Util::appendCallbackToken('http://example.com/?foo=bar', '6a5c6460')
+			Auth_OAuth_Util::appendQuery('http://example.com/?foo=bar', array('oauth_token' => '6a5c6460'))
 		);
 
 		$this->assertEquals(
 			'http://example.com/?foo=bar&oauth_token=6a5c6460#complete', 
-			Auth_OAuth_Util::appendCallbackToken('http://example.com/?foo=bar#complete', '6a5c6460')
+			Auth_OAuth_Util::appendQuery('http://example.com/?foo=bar#complete', array('oauth_token' => '6a5c6460'))
 		);
 
 	}

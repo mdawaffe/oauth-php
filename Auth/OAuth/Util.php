@@ -92,11 +92,20 @@ class Auth_OAuth_Util
 	 * Simple function to perform a redirect (GET).
 	 * Redirects the User-Agent, does not return.
 	 *
-	 * @param string uri
-	 * @param array params		parameters, urlencoded
-	 * @exception OAuthException when redirect uri is illegal
+	 * @param string $url URL to redirect to
+	 * @param array $parameters additional parameters to append to the redirect URL
 	 */
-	public static function redirect ( $uri, $params ) { }
+	public static function redirect ( $url, $parameters = null )
+	{
+		if (defined('Auth_OAuth_TESTING') && Auth_OAuth_TESTING) return;
+
+		$url = self::appendQuery($url, $parameters);
+
+		header('HTTP/1.1 302 Found');
+		header('Location: ' . $url);
+		echo '';
+		exit();
+	}
 
 
 	/**
@@ -169,28 +178,30 @@ class Auth_OAuth_Util
 
 
 	/**
-	 * Append the oauth_token value to the given callback, respecting any 
+	 * Append the specified parameters to the URL, respecting any 
 	 * existing query_string or URL fragment.
 	 *
-	 * @param string $callback callback URL
-	 * @param string $token OAuth token value
-	 * @return string updated callback URL
+	 * @param string $uri base URL
+	 * @param array $parameters associative array of additional parameters
+	 * @return string updated URL
 	 */
-	public static function appendCallbackToken ( $callback, $token )
+	public static function appendQuery ( $uri, $parameters = null )
 	{
-		$parts = parse_url($callback);
+		if (empty($parameters)) return $uri;
+
+		$parts = parse_url($uri);
 
 		if ( !empty($parts['fragment']) ) {
-			$callback = preg_replace('/' . preg_quote('#' . $parts['fragment']) . '$/', '', $callback);
+			$uri = preg_replace('/' . preg_quote('#' . $parts['fragment']) . '$/', '', $uri);
 		}
 
-		$callback .= ( empty($parts['query']) ? '?' : '&' ) . 'oauth_token=' . self::encode($token);
+		$uri .= ( empty($parts['query']) ? '?' : '&' ) . http_build_query($parameters);
 
 		if ( !empty($parts['fragment']) ) {
-			$callback .= '#' . $parts['fragment'];
+			$uri .= '#' . $parts['fragment'];
 		}
 
-		return $callback;
+		return $uri;
 	}
 
 }

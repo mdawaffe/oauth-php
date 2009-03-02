@@ -121,8 +121,7 @@ class Auth_OAuth_Server
 			$this->store->updateConsumerToken($authorized_token);
 
 			if ( $callback = $_SESSION['Auth_OAuth_Token']['callback'] ) {
-				$callback = Auth_OAuth_Util::appendCallbackToken($callback, $token->getToken());
-				// TODO redirect to callback
+				Auth_OAuth_Util::redirect($callback, array('oauth_token' => $token->getToken()));
 			} else {
 				// TODO instruct user to return to OAuth consumer site
 			}
