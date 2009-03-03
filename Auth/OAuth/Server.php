@@ -14,7 +14,19 @@ require_once 'Auth/OAuth/TokenImpl.php';
 class Auth_OAuth_Server
 {
 
+	/**
+	 * OAuth Store.
+	 *
+	 * @var Auth_OAuth_Store
+	 */
 	private $store;
+
+
+	/**
+	 * OAuth Signer
+	 *
+	 * @var Ath_OAuth_Signer
+	 */
 	private $signer;
 
 
@@ -159,9 +171,11 @@ class Auth_OAuth_Server
 
 		// ensure token is up to par
 		$request_token = $this->store->getConsumerToken($request->getToken());
+
 		if ($request_token->getType() != 'request') {
 			error_log('Token is not a request token'); return;
 		}
+
 		if (!$request_token->isAuthorized()) {
 			error_log('Token has not been authorized by the user'); return;
 		}
@@ -184,6 +198,7 @@ class Auth_OAuth_Server
 		// delete old request token
 		$this->store->deleteConsumerToken($request_token->getToken());
 
+		// send response
 		$response = array(
 			'oauth_token' => $access_token->getToken(),
 			'oauth_token_secret' => $access_token->getSecret(),
