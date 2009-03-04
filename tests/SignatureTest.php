@@ -121,6 +121,32 @@ class SignatureTest extends OAuth_TestCase {
 
 
 	/**
+	 * Test that the sign() method is properly generating the timestamp and
+	 * nonce OAuth parameters.  We don't care about the actual signature value
+	 * in this test.
+	 */
+	public function testNonceCreation() {
+		$signer = new Auth_OAuth_Signer();
+
+		$params = array('file'=>'vacation.jpg', 'size'=>'original', 'oauth_version'=>'1.0',
+					'oauth_consumer_key'=>'dpf43f3p2l4k3l03', 'oauth_token'=>'nnch734d00sl2jdk');
+		self::build_request('GET', 'http://photos.example.net/photos', $params);
+		$request = Auth_OAuth_RequestImpl::fromRequest();
+		$server = new Auth_OAuth_Store_ServerImpl('key', 'kd94hf93k423kf44');
+		$server->setSignatureMethods( array('PLAINTEXT', 'HMAC-SHA1') );
+		$token = new Auth_OAuth_TokenImpl('token', 'pfkkdhi9sl3r4s00', 'key', 'access');
+
+		$current_time = time();
+
+		$signer->sign($request, $server, $token);
+		$this->assertNotNull($request->getTimestamp());
+		$this->assertTrue($request->getTimestamp() > ($current_time - 100));
+		$this->assertTrue($request->getTimestamp() < ($current_time + 100));
+		$this->assertNotNull($request->getNonce());
+	}
+
+
+	/**
 	 * Test the full signing of a request. This is just to test that the 
 	 * correct signature method is chosen. Generation of the signature base 
 	 * string and signature itself is tested elsewhere more extensively.

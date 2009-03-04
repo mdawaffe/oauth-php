@@ -102,7 +102,9 @@ class Auth_OAuth_Signer
 
 	/**
 	 * Sign the OAuth request.  This will set the 'oauth_signature' and
-	 * 'oauth_signature_method' parameters on the provided OAuth Request.
+	 * 'oauth_signature_method' parameters on the provided OAuth Request.  This
+	 * method will also set the 'oauth_timestamp' and 'oauth_nonce' parameters
+	 * on the request if they are not already present.
 	 *
 	 * @param Auth_OAuth_Request $request OAuth request to sign
 	 * @param Auth_OAuth_Store_Server $server OAuth server to use for building the signature
@@ -118,6 +120,14 @@ class Auth_OAuth_Signer
 		}
 
 		if ($signature_method) {
+			if ( !$request->getTimestamp() ) {
+				$request->setParam('oauth_timestamp', time());
+			}
+
+			if ( !$request->getNonce() ) {
+				$request->setParam('oauth_nonce', Auth_OAuth_Util::generateKey());
+			}
+
 			$request->setParam('oauth_signature_method', $signature_method);
 			$signature = $this->getSignature($request, $server, $token);
 			$request->setParam('oauth_signature', $signature);
