@@ -20,7 +20,7 @@ class RequestTest extends OAuth_TestCase {
 	 */
 	public function testFromRequestPost() {
 		self::build_request('POST', 'http://testbed/test', array('foo'=>'bar', 'baz'=>'blargh'));
-		$request = new Auth_OAuth_RequestImpl();
+		$request = Auth_OAuth_RequestImpl::fromRequest();
 
 		$this->assertEquals('POST', $request->getMethod());
 		$this->assertEquals('http://testbed/test', $request->getRequestUrl());
@@ -28,7 +28,7 @@ class RequestTest extends OAuth_TestCase {
 
 
 		self::build_request('POST', 'http://testbed/test', array('a'=>'%25'));
-		$request = new Auth_OAuth_RequestImpl();
+		$request = Auth_OAuth_RequestImpl::fromRequest();
 		$this->assertEquals( '%', $request->getParam('a'));
 	}
 
@@ -38,7 +38,7 @@ class RequestTest extends OAuth_TestCase {
 	 */
 	public function testFromRequestPostGet() {
 		self::build_request('GET', 'http://testbed/test', array('foo'=>'bar', 'baz'=>'blargh'));
-		$request = new Auth_OAuth_RequestImpl();
+		$request = Auth_OAuth_RequestImpl::fromRequest();
 
 		$this->assertEquals('GET', $request->getMethod());
 		$this->assertEquals('http://testbed/test', $request->getRequestUrl());
@@ -53,7 +53,7 @@ class RequestTest extends OAuth_TestCase {
 		$test_header = 'OAuth realm="",oauth_foo=bar,oauth_baz="blargh"';
 		self::build_request('POST', 'http://testbed/test', array(), $test_header);
 
-		$request = new Auth_OAuth_RequestImpl();
+		$request = Auth_OAuth_RequestImpl::fromRequest();
 
 		$this->assertEquals('POST', $request->getMethod());
 		$this->assertEquals('http://testbed/test', $request->getRequestUrl());
@@ -71,28 +71,28 @@ class RequestTest extends OAuth_TestCase {
 	 */
 	public function testNormalizeParameters() {
 		self::build_request('POST', 'http://testbed/test', array('name'=>''));
-		$request = new Auth_OAuth_RequestImpl();
+		$request = Auth_OAuth_RequestImpl::fromRequest();
 		$this->assertEquals( 'name=', $request->getNormalizedParameterString());
 
 		self::build_request('POST', 'http://testbed/test', array('a'=>'b'));
-		$request = new Auth_OAuth_RequestImpl();
+		$request = Auth_OAuth_RequestImpl::fromRequest();
 		$this->assertEquals( 'a=b', $request->getNormalizedParameterString());
 
 		self::build_request('POST', 'http://testbed/test', array('a'=>'b', 'c'=>'d'));
-		$request = new Auth_OAuth_RequestImpl();
+		$request = Auth_OAuth_RequestImpl::fromRequest();
 		$this->assertEquals( 'a=b&c=d', $request->getNormalizedParameterString());
 
 		self::build_request('POST', 'http://testbed/test', array('a'=>array('x!y', 'x y')));
-		$request = new Auth_OAuth_RequestImpl();
+		$request = Auth_OAuth_RequestImpl::fromRequest();
 		$this->assertEquals( 'a=x%20y&a=x%21y', $request->getNormalizedParameterString());
 
 		self::build_request('POST', 'http://testbed/test', array('x!y'=>'a', 'x'=>'a'));
-		$request = new Auth_OAuth_RequestImpl();
+		$request = Auth_OAuth_RequestImpl::fromRequest();
 		$this->assertEquals( 'x=a&x%21y=a', $request->getNormalizedParameterString());
 
 		self::build_request('POST', 'http://testbed/test',
 			array('a'=>1, 'c'=>'hi there', 'f'=>array(25, 50, 'a'), 'z'=>array('p', 't')));
-		$request = new Auth_OAuth_RequestImpl();
+		$request = Auth_OAuth_RequestImpl::fromRequest();
 		$this->assertEquals( 'a=1&c=hi%20there&f=25&f=50&f=a&z=p&z=t', $request->getNormalizedParameterString());
 	}
 
@@ -104,20 +104,20 @@ class RequestTest extends OAuth_TestCase {
 	 */
 	public function testNormalizeHttpUrl() {
 		self::build_request('POST', 'http://example.com', array());
-		$request = new Auth_OAuth_RequestImpl();
+		$request = Auth_OAuth_RequestImpl::fromRequest();
 		$this->assertEquals('http://example.com', $request->getRequestUrl());
 
 		self::build_request('POST', 'https://example.com', array());
-		$request = new Auth_OAuth_RequestImpl();
+		$request = Auth_OAuth_RequestImpl::fromRequest();
 		$this->assertEquals('https://example.com', $request->getRequestUrl());
 
 		// Tests that http on !80 and https on !443 keeps the port
 		self::build_request('POST', 'https://example.com:80', array());
-		$request = new Auth_OAuth_RequestImpl();
+		$request = Auth_OAuth_RequestImpl::fromRequest();
 		$this->assertEquals('https://example.com:80', $request->getRequestUrl());
 
 		self::build_request('POST', 'http://example.com:443', array());
-		$request = new Auth_OAuth_RequestImpl();
+		$request = Auth_OAuth_RequestImpl::fromRequest();
 		$this->assertEquals('http://example.com:443', $request->getRequestUrl());
 	}
 

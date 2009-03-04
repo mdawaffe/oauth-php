@@ -23,6 +23,26 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 
 
 	/**
+	 * Construct a new Auth_OAuth_RequestImpl object.
+	 *
+	 * @param string $uri URI this request is for
+	 * @param string $method HTTP method used for this request
+	 * @param array $parameters associative array of OAuth parameters for this request
+	 * @param array $headers associative array of request headers.  Headers should be normalized, removing 
+	 *                       any 'HTTP_' prefix and capitalizing only the first letter of each word.
+	 * @param string $body request body
+	 */
+	public function __construct ( $uri, $method, $parameters = null, $headers = null, $body = null )
+	{
+		$this->uri = $uri;
+		$this->method = strtoupper($method);
+		$this->parameters = (array) $parameters;
+		$this->headers = (array) $headers;
+		$this->body = $body;
+	}
+
+
+	/**
 	 * Construct a new Auth_OAuth_RequestImpl object.  All parameters are optional, and if absent,
 	 * will be populated based on the current HTTP request using the $_SERVER global variable.
 	 *
@@ -33,22 +53,18 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 	 *                       any 'HTTP_' prefix and capitalizing only the first letter of each word.
 	 * @param string $body request body
 	 */
-	public function __construct ( $uri = null, $method = null, $parameters = array(), $headers = array(), $body = null )
+	public static function fromRequest ( $uri = null, $method = null, $parameters = null, $headers = null, $body = null )
 	{
 		$uri = self::buildRequestURL($uri);
-		$this->uri = $uri;
+		if ($method === null) $method = $_SERVER['REQUEST_METHOD'];
+		if ($headers === null) $headers = Auth_OAuth_Util::getRequestHeaders();
+		// if ($body === null) TODO get body from request
 
-		if (empty($method)) $method = $_SERVER['REQUEST_METHOD'];
-		$this->method = strtoupper($method);
+		$request = new self($uri, $method, null, $headers, $body);
 
-		if (empty($headers)) $headers = Auth_OAuth_Util::getRequestHeaders();
-		$this->headers = $headers;
-
-		$this->body = $body;
-
-		if (empty($parameters)) {
+		if ($parameters === null) {
 			$parameters = array();
-			$request_parameters = $this->getRequestParameters();
+			$request_parameters = $request->getRequestParameters();
 
 			// we must decode the raw request parameters
 			foreach ($request_parameters as $key => $value) {
@@ -68,7 +84,9 @@ class Auth_OAuth_RequestImpl implements Auth_OAuth_Request
 			}
 		}
 
-		$this->parameters = $parameters;
+		$request->parameters = $parameters;
+
+		return $request;
 	}
 
 

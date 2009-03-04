@@ -49,7 +49,7 @@ class Auth_OAuth_Server
 	public function requestToken ( Auth_OAuth_Request $request = null )
 	{
 		if ($request == null) {
-			$request = new Auth_OAuth_RequestImpl();
+			$request = Auth_OAuth_RequestImpl::fromRequest();
 		}
 
 		$consumer = $this->store->getConsumer($request->getConsumerKey());
@@ -87,7 +87,7 @@ class Auth_OAuth_Server
 	public function authorizeStart ( Auth_OAuth_Request $request = null )
 	{
 		if ($request == null) {
-			$request = new Auth_OAuth_RequestImpl();
+			$request = Auth_OAuth_RequestImpl::fromRequest();
 		}
 
 		// ensure token is up to par
@@ -161,7 +161,7 @@ class Auth_OAuth_Server
 	public function accessToken ( Auth_OAuth_Request $request = null )
 	{
 		if ($request == null) {
-			$request = new Auth_OAuth_RequestImpl();
+			$request = Auth_OAuth_RequestImpl::fromRequest();
 		}
 
 		$consumer = $this->store->getConsumer($request->getConsumerKey());

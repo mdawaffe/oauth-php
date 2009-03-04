@@ -18,12 +18,12 @@ class SignatureTest extends OAuth_TestCase {
 
 		// test 1
 		self::build_request('POST', 'http://testbed/test', array('n'=>'v'));
-		$request = new Auth_OAuth_RequestImpl();
+		$request = Auth_OAuth_RequestImpl::fromRequest();
 		$this->assertEquals('POST&http%3A%2F%2Ftestbed%2Ftest&n%3Dv', $signer->getSignatureBaseString($request));
 
 		// test 2
 		self::build_request('GET', 'http://example.com', array('n'=>'v'));
-		$request = new Auth_OAuth_RequestImpl();
+		$request = Auth_OAuth_RequestImpl::fromRequest();
 		$this->assertEquals('GET&http%3A%2F%2Fexample.com&n%3Dv', $signer->getSignatureBaseString($request));
 
 
@@ -32,7 +32,7 @@ class SignatureTest extends OAuth_TestCase {
 					'oauth_timestamp'=>'1191242090', 'oauth_nonce'=>'hsu94j3884jdopsl',
 					'oauth_signature_method'=>'PLAINTEXT', 'oauth_signature'=>'ignored');
 		self::build_request('POST', 'https://photos.example.net/request_token', $params);
-		$request = new Auth_OAuth_RequestImpl();
+		$request = Auth_OAuth_RequestImpl::fromRequest();
 		$this->assertEquals('POST&https%3A%2F%2Fphotos.example.net%2Frequest_token&oauth_'
 							.'consumer_key%3Ddpf43f3p2l4k3l03%26oauth_nonce%3Dhsu94j3884j'
 							.'dopsl%26oauth_signature_method%3DPLAINTEXT%26oauth_timestam'
@@ -45,7 +45,7 @@ class SignatureTest extends OAuth_TestCase {
 					'oauth_timestamp'=>'1191242096', 'oauth_nonce'=>'kllo9940pd9333jh',
 					'oauth_signature'=>'ignored', 'oauth_signature_method'=>'HMAC-SHA1');
 		self::build_request('GET', 'http://photos.example.net/photos', $params);
-		$request = new Auth_OAuth_RequestImpl();
+		$request = Auth_OAuth_RequestImpl::fromRequest();
 		$this->assertEquals('GET&http%3A%2F%2Fphotos.example.net%2Fphotos&file%3Dvacation'
 							.'.jpg%26oauth_consumer_key%3Ddpf43f3p2l4k3l03%26oauth_nonce%'
 							.'3Dkllo9940pd9333jh%26oauth_signature_method%3DHMAC-SHA1%26o'
@@ -60,7 +60,7 @@ class SignatureTest extends OAuth_TestCase {
 	 */
 	public function testPlaintext() {
 		self::build_request('POST', 'http://testbed/test', array());
-		$request = new Auth_OAuth_RequestImpl();
+		$request = Auth_OAuth_RequestImpl::fromRequest();
 
 		// test 1
 		$consumer_secret = 'kd94hf93k423kf44';
@@ -133,7 +133,7 @@ class SignatureTest extends OAuth_TestCase {
 					'oauth_consumer_key'=>'dpf43f3p2l4k3l03', 'oauth_token'=>'nnch734d00sl2jdk',
 					'oauth_timestamp'=>'1191242096', 'oauth_nonce'=>'kllo9940pd9333jh');
 		self::build_request('GET', 'http://photos.example.net/photos', $params);
-		$request = new Auth_OAuth_RequestImpl();
+		$request = Auth_OAuth_RequestImpl::fromRequest();
 		$server = new Auth_OAuth_Store_ServerImpl('key', 'kd94hf93k423kf44');
 		$server->setSignatureMethods( array('PLAINTEXT', 'HMAC-SHA1') );
 		$token = new Auth_OAuth_TokenImpl('token', 'pfkkdhi9sl3r4s00', 'key', 'access');
@@ -148,7 +148,7 @@ class SignatureTest extends OAuth_TestCase {
 					'oauth_consumer_key'=>'dpf43f3p2l4k3l03', 'oauth_token'=>'nnch734d00sl2jdk',
 					'oauth_timestamp'=>'1191242096', 'oauth_nonce'=>'kllo9940pd9333jh');
 		self::build_request('GET', 'http://photos.example.net/photos', $params);
-		$request = new Auth_OAuth_RequestImpl();
+		$request = Auth_OAuth_RequestImpl::fromRequest();
 		$server = new Auth_OAuth_Store_ServerImpl('key', 'kd94hf93k423kf44');
 		$server->setSignatureMethods( array( 'INVALID-METHOD', 'HMAC-SHA1', 'PLAINTEXT') );
 		$token = new Auth_OAuth_TokenImpl('token', 'pfkkdhi9sl3r4s00', 'key', 'access');
@@ -170,7 +170,7 @@ class SignatureTest extends OAuth_TestCase {
 			. '33jh", oauth_signature_method="PLAINTEXT", oauth_signature="kd94hf93k423kf44%26pfkkdhi9sl3r4s00"';
 		$params = array('file'=>'vacation.jpg', 'size'=>'original');
 		self::build_request('GET', 'http://photos.example.net/photos', $params, $auth_header);
-		$request = new Auth_OAuth_RequestImpl();
+		$request = Auth_OAuth_RequestImpl::fromRequest();
 
 		$this->assertEquals('http://photos.example.net/', $request->getRealm());
 		$this->assertEquals('1.0', $request->getVersion());
@@ -193,7 +193,7 @@ class SignatureTest extends OAuth_TestCase {
 					'oauth_consumer_key'=>'dpf43f3p2l4k3l03', 'oauth_token'=>'nnch734d00sl2jdk',
 					'oauth_timestamp'=>'1191242096', 'oauth_nonce'=>'kllo9940pd9333jh');
 		self::build_request('GET', 'http://photos.example.net/photos', $params);
-		$request = new Auth_OAuth_RequestImpl();
+		$request = Auth_OAuth_RequestImpl::fromRequest();
 		$server = new Auth_OAuth_Store_ServerImpl('key', 'kd94hf93k423kf44');
 		$server->setSignatureMethods( array('PLAINTEXT', 'HMAC-SHA1') );
 		$token = new Auth_OAuth_TokenImpl('token', 'pfkkdhi9sl3r4s00', 'key', 'access');
