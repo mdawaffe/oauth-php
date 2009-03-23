@@ -1,7 +1,7 @@
 <?php
 
 define( 'OAUTH_ROOT', dirname(dirname(__FILE__)) );
-set_include_path(OAUTH_ROOT . PATH_SEPARATOR . get_include_path());
+set_include_path(OAUTH_ROOT . '/src' . PATH_SEPARATOR . get_include_path());
 
 error_reporting(E_ALL);
 ini_set('display_errors', true);
