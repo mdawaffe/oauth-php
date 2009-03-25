@@ -35,8 +35,6 @@ class Auth_OAuth_Store_SQLite implements Auth_OAuth_Store
 			error_log($error);
 			return;
 		}
-
-		$this->build_tables();
 	}
 
 
@@ -277,7 +275,7 @@ class Auth_OAuth_Store_SQLite implements Auth_OAuth_Store
 	}
 
 
-	private function build_tables()
+	public function build_tables()
 	{
 		$sql = <<<EOT
 		CREATE TABLE consumers (

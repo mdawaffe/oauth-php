@@ -10,6 +10,7 @@ class SQLiteStoreTest extends OAuth_StoreTestCase {
 
 	public function setUp() {
 		$this->store = new Auth_OAuth_Store_SQLite( tempnam('/tmp', 'oauth_') );
+		$this->store->build_tables();
 	}
 
 }
