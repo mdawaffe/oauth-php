@@ -44,7 +44,7 @@ class Auth_OAuth_Server
 	/**
 	 * Handle request for a new Request Token.
 	 *
-	 * @param Auth_OAuth_Request $request OAuth request, if null current HTTP request will be used
+	 * @param Auth_OAuth_Request $request OAuth request. If null, current HTTP request will be used
 	 */
 	public function requestToken ( Auth_OAuth_Request $request = null )
 	{
@@ -121,7 +121,7 @@ class Auth_OAuth_Server
 	 *
 	 * @param int $user ID of user this token was associated with
 	 * @param boolean $authorized whether or not the user authorized the request token
-	 * @param Auth_OAuth_Request $request OAuth request, if null current HTTP request will be used
+	 * @param Auth_OAuth_Request $request OAuth request. If null, current HTTP request will be used
 	 * @return boolean whether or not the request was authorized.  If an OAuth
 	 * 		callback URL was included in the request, the user will be redirected
 	 * 		and this function will not return.
@@ -156,7 +156,7 @@ class Auth_OAuth_Server
 	/**
 	 * Handle request for a new Access Token.
 	 *
-	 * @param Auth_OAuth_Request $request OAuth request, if null current HTTP request will be used
+	 * @param Auth_OAuth_Request $request OAuth request. If null, current HTTP request will be used
 	 */
 	public function accessToken ( Auth_OAuth_Request $request = null )
 	{
@@ -205,6 +205,44 @@ class Auth_OAuth_Server
 		);
 
 		Auth_OAuth_Util::sendResponse($response);
+	}
+
+
+	/**
+	 * Verify an OAuth signed request for a protected resource.
+	 *
+	 * @param Auth_OAuth_Request $request OAuth request. If null, current HTTP request will be used
+	 * @return boolean|int false if the request is not properly signed, otherwise returns ID of the 
+	 *     user the access token belongs to.
+	 */
+	public function verifyRequest ( Auth_OAuth_Request $request = null )
+	{
+		if ($request == null) {
+			$request = Auth_OAuth_RequestImpl::fromRequest();
+		}
+
+		$consumer = $this->store->getConsumer($request->getConsumerKey());
+		if ( empty($consumer) ) {
+			error_log('unknown consumer'); return false;
+		}
+
+		$token = $this->store->getConsumerToken($request->getToken());
+
+		if (!$token || $token->getType() != 'access') {
+			error_log('Token is not an access token'); return false;
+		}
+
+		if ($consumer->getKey() != $token->getConsumerKey()) {
+			error_log('token is bad (consumer key does not match)'); return false;
+		}
+
+		$valid = $this->signer->verify($request, $consumer, $token);
+
+		if ( $valid ) {
+			return $token->getUser();
+		} else {
+			error_log('invalid signature'); return false;
+		}
 	}
 
 }

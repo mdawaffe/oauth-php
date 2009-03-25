@@ -117,6 +117,42 @@ class Auth_OAuth_ServerTest extends PHPUnit_Extensions_OutputTestCase {
 		$this->assertEquals('access', $tokens[0]->getType());
 		$this->assertEquals(42, $tokens[0]->getUser());
 	}
+
+	/**
+	 * Test request for a protected resource.
+	 */
+	public function testProtectedResource() {
+		$store = new Auth_OAuth_Store_InMemory();
+
+		$consumer = new Auth_OAuth_Store_ConsumerImpl('dpf43f3p2l4k3l03', 'kd94hf93k423kf44');
+		$store->updateConsumer($consumer);
+
+		$token = new Auth_OAuth_TokenImpl('6a5c6460', '59b13abc', $consumer->getKey(), 'access', 42);
+		$store->updateConsumerToken($token);
+
+		$server = new Auth_OAuth_Server($store);
+
+		$params = array(
+			'file'=>'vacation.jpg',
+			'size'=>'original',
+			'oauth_version'=>'1.0',
+			'oauth_consumer_key'=> $consumer->getKey(),
+			'oauth_token'=> $token->getToken(),
+			'oauth_timestamp'=>'1191242096',
+			'oauth_nonce'=>'kllo9940pd9333jh',
+			'oauth_signature'=>'WEdiBoT7aI+KxKkyPLMZFSBj4C8=',
+			'oauth_signature_method'=>'HMAC-SHA1'
+		);
+
+		Auth_OAuth_TestCase::build_request('GET', 'http://photos.example.net/photos', $params);
+		$this->assertEquals(42, $server->verifyRequest());
+
+		// Test 2 - known bad signature
+		$params['oauth_signature'] = 'foo';
+
+		Auth_OAuth_TestCase::build_request('GET', 'http://photos.example.net/photos', $params);
+		$this->assertFalse($server->verifyRequest());
+	}
 }
 
 ?>
