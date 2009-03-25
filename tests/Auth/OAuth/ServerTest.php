@@ -17,7 +17,7 @@ define('Auth_OAuth_TESTING', true);
 /**
  * Tests of Auth_OAuth_Server
  */
-class ServerTest extends PHPUnit_Extensions_OutputTestCase {
+class Auth_OAuth_ServerTest extends PHPUnit_Extensions_OutputTestCase {
 
 
 	/**
@@ -27,7 +27,7 @@ class ServerTest extends PHPUnit_Extensions_OutputTestCase {
 		$params = array('oauth_version'=>'1.0', 'oauth_consumer_key'=>'dpf43f3p2l4k3l03',
 					'oauth_timestamp'=>'1191242090', 'oauth_nonce'=>'hsu94j3884jdopsl',
 					'oauth_signature_method'=>'PLAINTEXT', 'oauth_signature'=>'kd94hf93k423kf44%26');
-		OAuth_TestCase::build_request('POST', 'https://photos.example.net/request_token', $params);
+		Auth_OAuth_TestCase::build_request('POST', 'https://photos.example.net/request_token', $params);
 
 		$store = new Auth_OAuth_Store_InMemory();
 
@@ -60,7 +60,7 @@ class ServerTest extends PHPUnit_Extensions_OutputTestCase {
 		$store->updateConsumerToken($request_token);
 
 		$params = array('oauth_token' => $request_token->getToken(), 'oauth_callback' => 'http://example.com/oauth_callback');
-		OAuth_TestCase::build_request('GET', 'https://photos.example.net/authorize_token', $params);
+		Auth_OAuth_TestCase::build_request('GET', 'https://photos.example.net/authorize_token', $params);
 
 		$server = new Auth_OAuth_Server($store);
 
@@ -100,7 +100,7 @@ class ServerTest extends PHPUnit_Extensions_OutputTestCase {
 			'oauth_signature_method' => 'PLAINTEXT',
 			'oauth_signature' => 'kd94hf93k423kf44%26' . $request_token->getSecret(),
 		);
-		OAuth_TestCase::build_request('POST', 'https://photos.example.net/access_token', $params);
+		Auth_OAuth_TestCase::build_request('POST', 'https://photos.example.net/access_token', $params);
 
 		$server = new Auth_OAuth_Server($store);
 

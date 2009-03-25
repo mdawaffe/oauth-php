@@ -1,6 +1,6 @@
 <?php
 
-require_once dirname(__FILE__) . '/TestCase.php';
+require_once dirname(dirname(__FILE__)) . '/TestCase.php';
 require_once 'Auth/OAuth/TokenImpl.php';
 require_once 'Auth/OAuth/Store/ConsumerImpl.php';
 require_once 'Auth/OAuth/Store/ServerImpl.php';
@@ -11,7 +11,7 @@ require_once 'Auth/OAuth/Store/ServerImpl.php';
  * class variable to be an instance of the OAuth Store implementation being 
  * tested.
  */
-abstract class OAuth_StoreTestCase extends OAuth_TestCase {
+abstract class Auth_OAuth_Store_TestCase extends Auth_OAuth_TestCase {
 
 	/**
 	 * OAuth store implementation being tested.

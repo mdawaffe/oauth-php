@@ -1,6 +1,6 @@
 <?php
 
-define( 'OAUTH_ROOT', dirname(dirname(__FILE__)) );
+define( 'OAUTH_ROOT', dirname(dirname(dirname(dirname(__FILE__)))) );
 set_include_path(OAUTH_ROOT . '/src' . PATH_SEPARATOR . get_include_path());
 
 error_reporting(E_ALL);
@@ -12,7 +12,7 @@ require_once 'PHPUnit/Framework.php';
  * A simple utils class for methods needed
  * during some of the tests
  */
-abstract class OAuth_TestCase extends PHPUnit_Framework_TestCase {
+abstract class Auth_OAuth_TestCase extends PHPUnit_Framework_TestCase {
 
 	private static function reset_request_vars() {
 		$_SERVER = array();

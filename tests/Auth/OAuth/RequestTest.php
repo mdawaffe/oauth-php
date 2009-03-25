@@ -12,7 +12,7 @@ require_once 'Auth/OAuth/RequestImpl.php';
  *
  * @see OAuthTestUtils::build_request
  */
-class RequestTest extends OAuth_TestCase {
+class Auth_OAuth_RequestTest extends Auth_OAuth_TestCase {
 
 
 	/**

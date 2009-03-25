@@ -6,7 +6,7 @@ require_once 'Auth/OAuth/Util.php';
 /**
  * Test Auth_OAuth_Util functions.
  */
-class UtilTest extends OAuth_TestCase {	
+class Auth_OAuth_UtilTest extends Auth_OAuth_TestCase {	
 
 	/**
 	 * Test parameter encoding.

@@ -8,7 +8,7 @@ require_once 'Auth/OAuth/SignatureMethod/HMAC_SHA1.php';
 require_once 'Auth/OAuth/Store/ServerImpl.php';
 require_once 'Auth/OAuth/TokenImpl.php';
 
-class SignatureTest extends OAuth_TestCase {
+class Auth_OAuth_SignatureTest extends Auth_OAuth_TestCase {
 
 	/**
 	 * Test that the signature base string is created properly.
